@@ -1,0 +1,55 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- === General properties ===-->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <RootNamespace>Salix.RestClient</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <NeutralLanguage>en</NeutralLanguage>
+  </PropertyGroup>
+
+  <!-- === NuGet package description properties ===-->
+  <PropertyGroup Label="NuGet properties">
+    <PackageId>Salix.RestClient</PackageId>
+    <Authors>Anrijs Vitolins;GitHub contributors</Authors>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <DebugSymbols>true</DebugSymbols>
+    <PackageTags>rest;api;httpclient</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageIcon>RestClient.png</PackageIcon>
+    <Description>
+Wrapper (abstract base classes) around IHttpClientFactory handled HttpClient instance to help interacting with external RESTful APIs.
+Create multiple derived clients for multiple APIs.
+Provides path and query parametrization for API URLs as well as default and on-fly header value additions to calls.
+Provides few authentication mechanisms.
+Json serialization defaults to Newtonsoft. Included optional System.Text.Json serializer.
+    </Description>
+    <PackageProjectUrl>https://github.com/salixzs/RestClient</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/salixzs/RestClient</RepositoryUrl>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
+    <PackageReleaseNotes>
+Initial release providing basic functionality.
+    </PackageReleaseNotes>
+    <Version>1.0.0-rc1</Version>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../../RestClient.png" Pack="true" Visible="false" PackagePath="" />
+  </ItemGroup>
+  
+  <!-- === NuGet dependencies ===-->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.16" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="System.Text.Json" Version="5.0.2" />
+  </ItemGroup>
+
+</Project>
