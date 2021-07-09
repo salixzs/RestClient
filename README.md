@@ -59,11 +59,12 @@ Then use client injected instance in your business logic:
 public class BusinessLogic
 {
     private readonly MyServiceClient _api;
+    
     public BusinessLogic(MyServiceClient apiClient) => _api = apiClient;
     
     public async Task LogicMethod() 
     {
-        var receivedData = _api.GetAsync<MyData>("endpoint/data/uri");
+        var receivedData = await _api.GetAsync<MyData>("endpoint/data/uri");
     }
 }
 ```
@@ -78,7 +79,7 @@ _clientMock = new Mock<MyServiceClient>(
                 new Mock<ILogger<MyServiceClient>>().Object
             );
 
-_clientMock.Setup(x => x.GetAsync<MyData>("enspoint/data/uri"))
+_clientMock.Setup(x => x.GetAsync<MyData>("endpoint/data/uri"))
                 .Returns(Task.FromResult(new MyData
                 {
                     SomeProp = "la la la"

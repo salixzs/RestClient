@@ -67,6 +67,12 @@ namespace Salix.RestClient
                 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(usernamePassword));
             }
 
+            // Handling BEARER authentication
+            if (settings.Authentication.AuthenticationType == ApiAuthenticationType.Bearer)
+            {
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", settings.Authentication.BearerToken);
+            }
+
             // Demand JSON by default, if not specified otherwise
             httpClient.BaseAddress = new Uri(settings.ServiceUrl);
             if (!settings.RequestHeaders.ContainsKey("Accept"))
@@ -508,14 +514,12 @@ namespace Salix.RestClient
         private async Task<T> SendHttpRequest<T>(HttpMethod method, string operation, object data = null, dynamic pathParameters = null, QueryParameterCollection queryParameters = null, Dictionary<string, string> headers = null)
             where T : new()
         {
-            var timer = Stopwatch.StartNew();
             HttpResponseMessage result = await this.SendHttpRequest(method, operation, data, pathParameters, queryParameters, headers);
 
             // 204 = generally success code, but no results
             if (result.StatusCode == HttpStatusCode.NoContent)
             {
                 _logger.LogTrace("API call returned empty result");
-                this.StopTimer(timer);
 
                 // Returns null for classes or nullable value types (and strings), otherwise default value type
                 // Lists if explicitly set as type parameter get initialized as empty lists
@@ -526,7 +530,6 @@ namespace Salix.RestClient
             try
             {
                 var returnValue = await _serializer.DeserializeAsync<T>(contentString);
-                this.StopTimer(timer);
                 return returnValue;
             }
             catch (Exception ex)
@@ -540,7 +543,6 @@ namespace Salix.RestClient
                 var retException = new RestClientException(errMsg, ex);
                 retException.Data.Add("Api.Uri", requestUri);
                 retException.Data.Add("Api.Method", result.RequestMessage.Method.Method);
-                this.StopTimer(timer);
                 throw retException;
             }
         }
