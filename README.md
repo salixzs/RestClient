@@ -85,3 +85,7 @@ _clientMock.Setup(x => x.GetAsync<MyData>("endpoint/data/uri"))
                     SomeProp = "la la la"
                 }));
 ```
+
+## Using Bearer authentication with Identity Server 4
+
+Refer to documentation in [Official site](http://docs.identityserver.io/en/latest/quickstarts/3_aspnetcore_and_apis.html#managing-the-access-token).

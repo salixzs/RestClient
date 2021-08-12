@@ -26,6 +26,7 @@ namespace Salix.RestClient
 
         /// <summary>
         /// Bearer token for REST service authentication with it.
+        /// NOTE: Should use other means to supply/change this as it is not a constant value.
         /// </summary>
         public string BearerToken { get; set; }
 
