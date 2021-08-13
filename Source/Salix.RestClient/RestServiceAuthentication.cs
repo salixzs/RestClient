@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace Salix.RestClient
@@ -30,6 +31,7 @@ namespace Salix.RestClient
         /// </summary>
         public string BearerToken { get; set; }
 
+        [ExcludeFromCodeCoverage]
         private string DebuggerDisplay
         {
             get

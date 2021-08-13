@@ -71,7 +71,7 @@ namespace Salix.RestClient
         public override string ToString()
         {
             // First check if value is a list of something (except string, of course)
-            if (this.Value is IEnumerable value && !(this.Value is string))
+            if (this.Value is IEnumerable value and not string)
             {
                 return string.Join(
                     "&",

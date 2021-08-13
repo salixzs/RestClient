@@ -33,11 +33,11 @@ Json serialization defaults to Newtonsoft. Included optional System.Text.Json se
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
 
     <PackageReleaseNotes>
-Initial release providing basic functionality.
+Switched to pure IHttpClientFactory usage (more correct and more friendly to other DI containers).
     </PackageReleaseNotes>
-    <Version>1.0.0</Version>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
+    <Version>2.0.0</Version>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <FileVersion>2.0.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -47,7 +47,8 @@ Initial release providing basic functionality.
   <!-- === NuGet dependencies ===-->
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.16" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.18" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.18" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="System.Text.Json" Version="5.0.2" />
   </ItemGroup>

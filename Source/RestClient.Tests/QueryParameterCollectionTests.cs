@@ -20,6 +20,13 @@ namespace RestClient.Tests
         }
 
         [Fact]
+        public void OneValue_Constructor_IsAdded()
+        {
+            var testable = new QueryParameterCollection("Identifier", 1001);
+            _ = testable.ToString().Should().Be("Identifier=1001");
+        }
+
+        [Fact]
         public void Add_IntegerParameter_IsCorrect()
         {
             var testable = new QueryParameterCollection

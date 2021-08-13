@@ -7,25 +7,26 @@ using FluentAssertions;
 using Salix.RestClient;
 using Xunit;
 using Xunit.Abstractions;
+
 namespace RestClient.Tests
 {
     [ExcludeFromCodeCoverage]
     public class IntegrationTests
     {
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly XUnitLogger<HttpBinClient> _logger;
         private HttpBinClient _api;
 
         public IntegrationTests(ITestOutputHelper output)
         {
-            _httpClient = new HttpClient();
+            _httpClientFactory = new TestHttpClientFactory();
             _logger = new XUnitLogger<HttpBinClient>(output);
         }
 
         [Fact]
         public async Task Get_Guid_Succeeds()
         {
-            _api = new HttpBinClient(_httpClient, new RestServiceSettings { ServiceUrl = "https://httpbin.org" }, _logger);
+            _api = new HttpBinClient(_httpClientFactory, new RestServiceSettings { ServiceUrl = "https://httpbin.org" }, _logger);
             var result = await _api.GetAsync<GuidHolder>("uuid");
             result.Should().NotBeNull();
             result.uuid.Should().NotBeEmpty();
@@ -34,7 +35,7 @@ namespace RestClient.Tests
         [Fact]
         public async Task Auth_BasicCorrect_Succeeds()
         {
-            _api = new HttpBinClient(_httpClient, new RestServiceSettings { ServiceUrl = "https://httpbin.org", Authentication = new RestServiceAuthentication { AuthenticationType = ApiAuthenticationType.Basic, UserName = "me", Password = "secret" } }, _logger);
+            _api = new HttpBinClient(_httpClientFactory, new RestServiceSettings { ServiceUrl = "https://httpbin.org", Authentication = new RestServiceAuthentication { AuthenticationType = ApiAuthenticationType.Basic, UserName = "me", Password = "secret" } }, _logger);
             var result = await _api.GetAsync("basic-auth/{user}/{password}", new { user = "me", password = "secret" });
             result.Should().NotBeNull();
             result.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -43,13 +44,13 @@ namespace RestClient.Tests
         [Fact]
         public async Task Auth_BasicWrong_Unauthorized()
         {
-            _api = new HttpBinClient(_httpClient, new RestServiceSettings { ServiceUrl = "https://httpbin.org", Authentication = new RestServiceAuthentication { AuthenticationType = ApiAuthenticationType.Basic, UserName = "me", Password = "secret" } }, _logger);
+            _api = new HttpBinClient(_httpClientFactory, new RestServiceSettings { ServiceUrl = "https://httpbin.org", Authentication = new RestServiceAuthentication { AuthenticationType = ApiAuthenticationType.Basic, UserName = "me", Password = "secret" } }, _logger);
             try
             {
                 var result = await _api.GetAsync("basic-auth/{user}/{password}", new { user = "notme", password = "hola" });
                 result.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
             }
-            catch(RestClientException ex)
+            catch (RestClientException ex)
             {
                 ex.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
             }
@@ -58,7 +59,7 @@ namespace RestClient.Tests
         [Fact]
         public async Task Auth_Bearer_Succeeds()
         {
-            _api = new HttpBinClient(_httpClient, new RestServiceSettings { ServiceUrl = "https://httpbin.org", Authentication = new RestServiceAuthentication { AuthenticationType = ApiAuthenticationType.Bearer, BearerToken = "123123123123" } }, _logger);
+            _api = new HttpBinClient(_httpClientFactory, new RestServiceSettings { ServiceUrl = "https://httpbin.org", Authentication = new RestServiceAuthentication { AuthenticationType = ApiAuthenticationType.Bearer, BearerToken = "123123123123" } }, _logger);
             var result = await _api.GetAsync("bearer");
             result.Should().NotBeNull();
             result.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -67,6 +68,7 @@ namespace RestClient.Tests
         }
     }
 
+    [ExcludeFromCodeCoverage]
     public class GuidHolder
     {
         public Guid uuid { get; set; }

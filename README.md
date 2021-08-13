@@ -7,7 +7,11 @@ Wrapper for RESTful service (API) client, using IHttpClientFactory in ASP.NET fr
 Create your own API client, deriving from `AbstractRestClient` class.
 
 ```csharp
-public class MyServiceClient : AbstractRestClient
+public Interface IMyServiceClient : IAbstractRestClient
+{
+}
+
+public class MyServiceClient : AbstractRestClient, IMyServiceClient
 {
     /// <summary>
     /// Client to work with MyService API.
@@ -49,8 +53,9 @@ new MyServiceClientSettings {
 Using MS Extensions for Dependency Injection, register them appropriately
 
 ```csharp
+services.AddHttpClient(); // This registers IHttpClientFactory
 services.AddSingleton(myServiceClientSettings); // instance of configuration for API client
-services.AddHttpClient<MyServiceClient>("MyService");
+services.AddScoped<IMyServiceClient, MyServiceClient>();
 ```
 
 Then use client injected instance in your business logic:
@@ -58,9 +63,9 @@ Then use client injected instance in your business logic:
 ```csharp
 public class BusinessLogic
 {
-    private readonly MyServiceClient _api;
+    private readonly IMyServiceClient _api;
     
-    public BusinessLogic(MyServiceClient apiClient) => _api = apiClient;
+    public BusinessLogic(IMyServiceClient apiClient) => _api = apiClient;
     
     public async Task LogicMethod() 
     {
@@ -72,13 +77,7 @@ public class BusinessLogic
 If you need to unit-test your business logic, mock your client dependencies:
 
 ```csharp
-_clientMock = new Mock<MyServiceClient>(
-                MockBehavior.Strict,
-                new Mock<HttpClient>().Object,
-                new MyServiceClientSettings { ServiceUrl = "http://localhost" },
-                new Mock<ILogger<MyServiceClient>>().Object
-            );
-
+_clientMock = new Mock<IMyServiceClient>();
 _clientMock.Setup(x => x.GetAsync<MyData>("endpoint/data/uri"))
                 .Returns(Task.FromResult(new MyData
                 {

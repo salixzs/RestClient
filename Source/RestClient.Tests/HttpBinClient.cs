@@ -1,20 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Salix.RestClient;
 
 namespace RestClient.Tests
 {
     /// <summary>
-    /// 
+    /// Test client to https://httpbin.org for integration testing (actual calls).
     /// </summary>
+    [ExcludeFromCodeCoverage]
     public class HttpBinClient : AbstractRestClient
     {
-        public HttpBinClient(HttpClient httpClient, RestServiceSettings settings, ILogger logger) : base(httpClient, settings, logger)
+        public HttpBinClient(IHttpClientFactory httpClientFactory, RestServiceSettings settings, ILogger logger) : base(httpClientFactory, settings, logger)
         {
         }
     }

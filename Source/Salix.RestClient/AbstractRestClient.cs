@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -15,12 +16,12 @@ namespace Salix.RestClient
     /// Generic, typed REST (API) Service client instance.
     /// </summary>
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public abstract class AbstractRestClient
+    public abstract class AbstractRestClient : IAbstractRestClient
     {
         private readonly IObjectSerializer _serializer;
+        private readonly RestServiceSettings _settings;
         private readonly ILogger _logger;
-
-        protected HttpClient HttpClient { get; set; }
+        protected IHttpClientFactory HttpClientFactory { get; set; }
 
         /// <summary>
         /// Last operation timing.
@@ -28,74 +29,32 @@ namespace Salix.RestClient
         public TimeSpan CallTime { get; private set; }
 
         /// <summary>
-        /// Generic, typed REST (API) Service client instance with Newtonsft.Json serializer.
+        /// Generic, typed REST (API) Service client instance.
         /// </summary>
-        /// <param name="httpClient">The HTTP client itself.</param>
-        /// <param name="settings">The settings for client instance.</param>
-        /// <param name="logger">The object for logging.</param>
-        /// <exception cref="ArgumentNullException">httpClient is not provided.</exception>
-        protected AbstractRestClient(HttpClient httpClient, RestServiceSettings settings, ILogger logger) : this(httpClient, settings, logger, null)
+        protected AbstractRestClient(IHttpClientFactory httpClientFactory, RestServiceSettings settings, ILogger logger) : this(httpClientFactory, settings, logger, null)
         {
+
         }
 
         /// <summary>
         /// Generic, typed REST (API) Service client instance.
         /// </summary>
-        /// <param name="httpClient">The HTTP client itself.</param>
-        /// <param name="settings">The settings for client instance.</param>
-        /// <param name="logger">The object for logging.</param>
-        /// <param name="serializer">The Json object serializer/deserializer implementation. Default (when null) = Newtonsoft.Json implementation.</param>
-        /// <exception cref="ArgumentNullException">httpClient is not provided.</exception>
-        protected AbstractRestClient(HttpClient httpClient, RestServiceSettings settings, ILogger logger, IObjectSerializer serializer)
+        protected AbstractRestClient(IHttpClientFactory httpClientFactory, RestServiceSettings settings, ILogger logger, IObjectSerializer serializer)
         {
-            if (httpClient == null)
-            {
-                throw new ArgumentNullException(nameof(httpClient));
-            }
-
-            if (settings == null)
-            {
-                throw new ArgumentNullException(nameof(settings));
-            }
-
-            _serializer = serializer ?? NewtonsoftJsonObjectSerializer.Default;
-
-            // Handling BASIC authentication
-            if (settings.Authentication.AuthenticationType == ApiAuthenticationType.Basic)
-            {
-                var usernamePassword = Encoding.ASCII.GetBytes($"{settings.Authentication.UserName}:{settings.Authentication.Password}");
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(usernamePassword));
-            }
-
-            // Handling BEARER authentication
-            if (settings.Authentication.AuthenticationType == ApiAuthenticationType.Bearer)
-            {
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", settings.Authentication.BearerToken);
-            }
-
-            // Demand JSON by default, if not specified otherwise
-            httpClient.BaseAddress = new Uri(settings.ServiceUrl);
-            if (!settings.RequestHeaders.ContainsKey("Accept"))
-            {
-                httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
-            }
-
-            foreach (var requestHeader in settings.RequestHeaders)
-            {
-                httpClient.DefaultRequestHeaders.Add(requestHeader.Key, requestHeader.Value);
-            }
-
-            this.HttpClient = httpClient;
+            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            this.HttpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
             _logger = logger;
+            _serializer = serializer ?? NewtonsoftJsonObjectSerializer.Default;
             _logger.LogDebug($"Created API RestClient to {settings.ServiceUrl}");
         }
 
+        #region HTTP Method wrappers
         /// <summary>
         /// Performs Asynchronous HTTP GET operation with specified operation URL (may contain some business ID(s)) and optional query parameters.
         /// Returns Raw HttpResponseMessage. Can be used with XML SOAP services to be able to retrieve non-JSON data.
         /// </summary>
         /// <typeparam name="T">Type of data to retrieve.</typeparam>
-        /// <param name="operation">The operation URL. Use DTO.Endpoints namespace definitions for this in particular service (shared project). May contain IDs of business objects.</param>
+        /// <param name="operation">The operation URL.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
         /// <param name="data">The data to be sent as request payload.</param>
@@ -108,7 +67,7 @@ namespace Salix.RestClient
         /// Returns Raw HttpResponseMessage. Can be used with XML SOAP services to be able to retrieve non-JSON data.
         /// </summary>
         /// <typeparam name="T">Type of data to retrieve.</typeparam>
-        /// <param name="operation">The operation URL. Use DTO.Endpoints namespace definitions for this in particular service (shared project). May contain IDs of business objects.</param>
+        /// <param name="operation">The operation URL.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
         /// <param name="data">The data to be sent as request payload.</param>
@@ -120,7 +79,7 @@ namespace Salix.RestClient
         /// Returns Raw HttpResponseMessage. Can be used with XML SOAP services to be able to retrieve non-JSON data.
         /// </summary>
         /// <typeparam name="T">Type of data to retrieve.</typeparam>
-        /// <param name="operation">The operation URL. Use DTO.Endpoints namespace definitions for this in particular service (shared project). May contain IDs of business objects.</param>
+        /// <param name="operation">The operation URL.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         /// <param name="data">The data to be sent as request payload.</param>
         public virtual async Task<HttpResponseMessage> GetAsync(string operation, dynamic pathParameters, object data)
@@ -128,10 +87,10 @@ namespace Salix.RestClient
 
         /// <summary>
         /// Performs Asynchronous HTTP GET operation with specified operation URL (may contain some business ID(s)) and optional query parameters.
-        /// Returns Raw HttpResponseMessage. Can be used with XML SOAP services to be able to retrieve non-JSON data.
+        /// Returns Raw HttpResponseMessage. Can be used with XML SOAP services to be able to retrieve nonJSON data.
         /// </summary>
         /// <typeparam name="T">Type of data to retrieve.</typeparam>
-        /// <param name="operation">The operation URL. Use DTO.Endpoints namespace definitions for this in particular service (shared project). May contain IDs of business objects.</param>
+        /// <param name="operation">The operation URL.</param>
         /// <param name="data">The data to be sent as request payload.</param>
         public virtual async Task<HttpResponseMessage> GetAsync(string operation, object data)
             => await this.GetAsync(operation, data, null, null, null).ConfigureAwait(false);
@@ -141,7 +100,7 @@ namespace Salix.RestClient
         /// Returns Raw HttpResponseMessage. Can be used with XML SOAP services to be able to retrieve non-JSON data.
         /// </summary>
         /// <typeparam name="T">Type of data to retrieve.</typeparam>
-        /// <param name="operation">The operation URL. Use DTO.Endpoints namespace definitions for this in particular service (shared project). May contain IDs of business objects.</param>
+        /// <param name="operation">The operation URL.</param>
         public virtual async Task<HttpResponseMessage> GetAsync(string operation)
             => await this.GetAsync(operation, null, null, null, null).ConfigureAwait(false);
 
@@ -150,55 +109,55 @@ namespace Salix.RestClient
         /// Usually used to perform data retrievals from API services.
         /// </summary>
         /// <typeparam name="T">Type of data to retrieve.</typeparam>
-        /// <param name="operation">The operation URL. Use DTO.Endpoints namespace definitions for this in particular service (shared project). May contain IDs of business objects.</param>
+        /// <param name="operation">The operation URL.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
         /// <param name="data">The data to be sent as request payload.</param>
         /// <param name="headers">Additional request header(s) to add to this request in addition to default global headers (added in client setup).</param>
         public virtual async Task<T> GetAsync<T>(string operation, dynamic pathParameters, QueryParameterCollection queryParameters, object data, Dictionary<string, string> headers)
-            where T : new() => await this.SendHttpRequest<T>(HttpMethod.Get, operation, data, pathParameters, queryParameters, headers).ConfigureAwait(false);
+            => await this.SendHttpRequest<T>(HttpMethod.Get, operation, data, pathParameters, queryParameters, headers).ConfigureAwait(false);
 
         /// <summary>
         /// Performs Asynchronous HTTP GET operation with specified operation URL (may contain some business ID(s)) and optional query parameters
         /// Usually used to perform data retrievals from API services.
         /// </summary>
         /// <typeparam name="T">Type of data to retrieve.</typeparam>
-        /// <param name="operation">The operation URL. Use DTO.Endpoints namespace definitions for this in particular service (shared project). May contain IDs of business objects.</param>
+        /// <param name="operation">The operation URL.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
         /// <param name="data">The data to be sent as request payload.</param>
         public virtual async Task<T> GetAsync<T>(string operation, dynamic pathParameters, QueryParameterCollection queryParameters, object data)
-            where T : new() => await this.GetAsync<T>(operation, pathParameters, queryParameters, data, null).ConfigureAwait(false);
+            => await this.GetAsync<T>(operation, pathParameters, queryParameters, data, null).ConfigureAwait(false);
 
         /// <summary>
         /// Performs Asynchronous HTTP GET operation with specified operation URL (may contain some business ID(s)) and optional query parameters
         /// Usually used to perform data retrievals from API services.
         /// </summary>
         /// <typeparam name="T">Type of data to retrieve.</typeparam>
-        /// <param name="operation">The operation URL. Use DTO.Endpoints namespace definitions for this in particular service (shared project). May contain IDs of business objects.</param>
+        /// <param name="operation">The operation URL.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
         public virtual async Task<T> GetAsync<T>(string operation, dynamic pathParameters, QueryParameterCollection queryParameters)
-            where T : new() => await this.GetAsync<T>(operation, pathParameters, queryParameters, null, null).ConfigureAwait(false);
+            => await this.GetAsync<T>(operation, pathParameters, queryParameters, null, null).ConfigureAwait(false);
 
         /// <summary>
         /// Performs Asynchronous HTTP GET operation with specified operation URL (may contain some business ID(s)) and optional query parameters
         /// Usually used to perform data retrievals from API services.
         /// </summary>
         /// <typeparam name="T">Type of data to retrieve.</typeparam>
-        /// <param name="operation">The operation URL. Use DTO.Endpoints namespace definitions for this in particular service (shared project). May contain IDs of business objects.</param>
+        /// <param name="operation">The operation URL.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         public virtual async Task<T> GetAsync<T>(string operation, dynamic pathParameters = null)
-            where T : new() => await this.GetAsync<T>(operation, pathParameters, null, null, null).ConfigureAwait(false);
+            => await this.GetAsync<T>(operation, pathParameters, null, null, null).ConfigureAwait(false);
 
         /// <summary>
         /// Performs Asynchronous HTTP GET operation with specified operation URL (may contain some business ID(s)) and optional query parameters
         /// Usually used to perform data retrievals from API services.
         /// </summary>
         /// <typeparam name="T">Type of data to retrieve.</typeparam>
-        /// <param name="operation">The operation URL. Use DTO.Endpoints namespace definitions for this in particular service (shared project). May contain IDs of business objects.</param>
+        /// <param name="operation">The operation URL.</param>
         public virtual async Task<T> GetAsync<T>(string operation)
-            where T : new() => await this.GetAsync<T>(operation, null, null, null, null).ConfigureAwait(false);
+            => await this.GetAsync<T>(operation, null, null, null, null).ConfigureAwait(false);
 
         /// <summary>
         /// Performs Asynchronous HTTP POST operation with specified operation URL and data.
@@ -257,7 +216,7 @@ namespace Salix.RestClient
         /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
         /// <param name="headers">Additional request header(s) to add to this request in addition to default global headers (added in client setup).</param>
         public virtual async Task<T> PostAsync<T>(string operation, object data, dynamic pathParameters, QueryParameterCollection queryParameters, Dictionary<string, string> headers)
-            where T : new() => await this.SendHttpRequest<T>(HttpMethod.Post, operation, data, pathParameters, queryParameters, headers).ConfigureAwait(false);
+            => await this.SendHttpRequest<T>(HttpMethod.Post, operation, data, pathParameters, queryParameters, headers).ConfigureAwait(false);
 
         /// <summary>
         /// Performs Asynchronous HTTP POST operation with specified operation URL and data.
@@ -269,7 +228,7 @@ namespace Salix.RestClient
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
         public virtual async Task<T> PostAsync<T>(string operation, object data, dynamic pathParameters, QueryParameterCollection queryParameters)
-            where T : new() => await this.PostAsync<T>(operation, data, pathParameters, queryParameters, null).ConfigureAwait(false);
+            => await this.PostAsync<T>(operation, data, pathParameters, queryParameters, null).ConfigureAwait(false);
 
         /// <summary>
         /// Performs Asynchronous HTTP POST operation with specified operation URL and data.
@@ -280,7 +239,7 @@ namespace Salix.RestClient
         /// <param name="data">Data object that should be sent to server.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         public virtual async Task<T> PostAsync<T>(string operation, object data, dynamic pathParameters)
-            where T : new() => await this.PostAsync<T>(operation, data, pathParameters, null, null).ConfigureAwait(false);
+            => await this.PostAsync<T>(operation, data, pathParameters, null, null).ConfigureAwait(false);
 
         /// <summary>
         /// Performs Asynchronous HTTP POST operation with specified operation URL and data.
@@ -290,7 +249,7 @@ namespace Salix.RestClient
         /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this. May contain IDs of business objects.</param>
         /// <param name="data">Data object that should be sent to server.</param>
         public virtual async Task<T> PostAsync<T>(string operation, object data)
-            where T : new() => await this.PostAsync<T>(operation, data, null, null, null).ConfigureAwait(false);
+            => await this.PostAsync<T>(operation, data, null, null, null).ConfigureAwait(false);
 
         /// <summary>
         /// Performs Asynchronous HTTP PUT operation with specified operation URL using specified method and passing data.
@@ -303,7 +262,7 @@ namespace Salix.RestClient
         /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
         /// <param name="headers">Additional request header(s) to add to this request in addition to default global headers (added in client setup).</param>
         public virtual async Task<T> PutAsync<T>(string operation, object data, dynamic pathParameters, QueryParameterCollection queryParameters, Dictionary<string, string> headers)
-            where T : new() => await this.SendHttpRequest<T>(HttpMethod.Put, operation, data, pathParameters, queryParameters, headers).ConfigureAwait(false);
+            => await this.SendHttpRequest<T>(HttpMethod.Put, operation, data, pathParameters, queryParameters, headers).ConfigureAwait(false);
 
         /// <summary>
         /// Performs Asynchronous HTTP PUT operation with specified operation URL using specified method and passing data.
@@ -315,7 +274,7 @@ namespace Salix.RestClient
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
         public virtual async Task<T> PutAsync<T>(string operation, object data, dynamic pathParameters, QueryParameterCollection queryParameters)
-            where T : new() => await this.PutAsync<T>(operation, data, pathParameters, queryParameters, null).ConfigureAwait(false);
+            => await this.PutAsync<T>(operation, data, pathParameters, queryParameters, null).ConfigureAwait(false);
 
         /// <summary>
         /// Performs Asynchronous HTTP PUT operation with specified operation URL using specified method and passing data.
@@ -326,7 +285,7 @@ namespace Salix.RestClient
         /// <param name="data">Data object that should be sent to server.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         public virtual async Task<T> PutAsync<T>(string operation, object data, dynamic pathParameters)
-            where T : new() => await this.PutAsync<T>(operation, data, pathParameters, null, null).ConfigureAwait(false);
+            => await this.PutAsync<T>(operation, data, pathParameters, null, null).ConfigureAwait(false);
 
         /// <summary>
         /// Performs Asynchronous HTTP PUT operation with specified operation URL using specified method and passing data.
@@ -336,7 +295,7 @@ namespace Salix.RestClient
         /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this.</param>
         /// <param name="data">Data object that should be sent to server.</param>
         public virtual async Task<T> PutAsync<T>(string operation, object data)
-            where T : new() => await this.PutAsync<T>(operation, data, null, null, null).ConfigureAwait(false);
+            => await this.PutAsync<T>(operation, data, null, null, null).ConfigureAwait(false);
 
         /// <summary>
         /// Performs Asynchronous HTTP PATCH operation with specified operation URL using specified method and passing data.
@@ -349,7 +308,7 @@ namespace Salix.RestClient
         /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
         /// <param name="headers">Additional request header(s) to add to this request in addition to default global headers (added in client setup).</param>
         public virtual async Task<T> PatchAsync<T>(string operation, object data, dynamic pathParameters, QueryParameterCollection queryParameters, Dictionary<string, string> headers)
-            where T : new() => await this.SendHttpRequest<T>(HttpMethod.Put, operation, data, pathParameters, queryParameters, headers).ConfigureAwait(false);
+            => await this.SendHttpRequest<T>(HttpMethod.Put, operation, data, pathParameters, queryParameters, headers).ConfigureAwait(false);
 
         /// <summary>
         /// Performs Asynchronous HTTP PATCH operation with specified operation URL using specified method and passing data.
@@ -361,7 +320,7 @@ namespace Salix.RestClient
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
         public virtual async Task<T> PatchAsync<T>(string operation, object data, dynamic pathParameters, QueryParameterCollection queryParameters)
-            where T : new() => await this.PatchAsync<T>(operation, data, pathParameters, queryParameters, null).ConfigureAwait(false);
+            => await this.PatchAsync<T>(operation, data, pathParameters, queryParameters, null).ConfigureAwait(false);
 
         /// <summary>
         /// Performs Asynchronous HTTP PATCH operation with specified operation URL using specified method and passing data.
@@ -372,7 +331,18 @@ namespace Salix.RestClient
         /// <param name="data">Data object that should be sent to server.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         public virtual async Task<T> PatchAsync<T>(string operation, object data, dynamic pathParameters)
-            where T : new() => await this.PatchAsync<T>(operation, data, pathParameters, null, null).ConfigureAwait(false);
+            => await this.PatchAsync<T>(operation, data, pathParameters, null, null).ConfigureAwait(false);
+
+        /// <summary>
+        /// Performs Asynchronous HTTP PATCH operation with specified operation URL using specified method and passing data.
+        /// Usually used to perform data updates through API services. Note: Uses PUT method under curtains.
+        /// </summary>
+        /// <typeparam name="T">Type of data that will be retrieved.</typeparam>
+        /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this.</param>
+        /// <param name="data">Data object that should be sent to server.</param>
+        /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+        public virtual async Task<T> PatchAsync<T>(string operation, object data)
+            => await this.PatchAsync<T>(operation, data, null, null, null).ConfigureAwait(false);
 
         /// <summary>
         /// Performs Asynchronous HTTP DELETE operation with specified operation URL (may contain some business ID(s)) and optional query parameters
@@ -385,7 +355,7 @@ namespace Salix.RestClient
         /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
         /// <param name="headers">Additional request header(s) to add to this request in addition to default global headers (added in client setup).</param>
         public virtual async Task<T> DeleteAsync<T>(string operation, object data, dynamic pathParameters, QueryParameterCollection queryParameters, Dictionary<string, string> headers)
-            where T : new() => await this.SendHttpRequest<T>(HttpMethod.Delete, operation, data, pathParameters, queryParameters, headers).ConfigureAwait(false);
+            => await this.SendHttpRequest<T>(HttpMethod.Delete, operation, data, pathParameters, queryParameters, headers).ConfigureAwait(false);
 
         /// <summary>
         /// Performs Asynchronous HTTP DELETE operation with specified operation URL (may contain some business ID(s)) and optional query parameters
@@ -397,7 +367,7 @@ namespace Salix.RestClient
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
         public virtual async Task<T> DeleteAsync<T>(string operation, object data, dynamic pathParameters, QueryParameterCollection queryParameters)
-            where T : new() => await this.DeleteAsync<T>(operation, data, pathParameters, queryParameters, null).ConfigureAwait(false);
+            => await this.DeleteAsync<T>(operation, data, pathParameters, queryParameters, null).ConfigureAwait(false);
 
         /// <summary>
         /// Performs Asynchronous HTTP DELETE operation with specified operation URL (may contain some business ID(s)) and optional query parameters
@@ -408,7 +378,7 @@ namespace Salix.RestClient
         /// <param name="data">Data object that should be sent to server.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         public virtual async Task<T> DeleteAsync<T>(string operation, object data, dynamic pathParameters)
-            where T : new() => await this.DeleteAsync<T>(operation, data, pathParameters, null, null).ConfigureAwait(false);
+            => await this.DeleteAsync<T>(operation, data, pathParameters, null, null).ConfigureAwait(false);
 
         /// <summary>
         /// Performs Asynchronous HTTP DELETE operation with specified operation URL (may contain some business ID(s)) and optional query parameters
@@ -418,7 +388,7 @@ namespace Salix.RestClient
         /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this. May contain IDs of business objects.</param>
         /// <param name="data">Data object that should be sent to server.</param>
         public virtual async Task<T> DeleteAsync<T>(string operation, object data)
-            where T : new() => await this.DeleteAsync<T>(operation, data, null, null, null).ConfigureAwait(false);
+            => await this.DeleteAsync<T>(operation, data, null, null, null).ConfigureAwait(false);
 
         /// <summary>
         /// Performs Asynchronous HTTP DELETE operation with specified operation URL (may contain some business ID(s)) and optional query parameters
@@ -435,7 +405,32 @@ namespace Salix.RestClient
         /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this. May contain IDs of business objects.</param>
         /// <param name="data">Data object that should be sent to server.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
-        public virtual async Task DeleteAsync(string operation, object data, dynamic pathParameters) => await this.SendHttpRequest(HttpMethod.Delete, operation, data, pathParameters).ConfigureAwait(false);
+        public virtual async Task DeleteAsync(string operation, object data, dynamic pathParameters) =>
+            await this.SendHttpRequest(HttpMethod.Delete, operation, data, pathParameters).ConfigureAwait(false);
+
+        /// <summary>
+        /// Performs Asynchronous HTTP DELETE operation with specified operation URL (may contain some business ID(s)) and optional query parameters
+        /// Usually used to perform data removal from API services.
+        /// </summary>
+        /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this. May contain IDs of business objects.</param>
+        /// <param name="data">Data object that should be sent to server.</param>
+        /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+        /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
+        public virtual async Task DeleteAsync(string operation, object data, dynamic pathParameters, QueryParameterCollection queryParameters) =>
+            await this.SendHttpRequest(HttpMethod.Delete, operation, data, pathParameters, queryParameters).ConfigureAwait(false);
+
+        /// <summary>
+        /// Performs Asynchronous HTTP DELETE operation with specified operation URL (may contain some business ID(s)) and optional query parameters
+        /// Usually used to perform data removal from API services.
+        /// </summary>
+        /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this. May contain IDs of business objects.</param>
+        /// <param name="data">Data object that should be sent to server.</param>
+        /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+        /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
+        /// <param name="headers">Additional request header(s) to add to this request in addition to default global headers (added in client setup).</param>
+        public virtual async Task DeleteAsync(string operation, object data, dynamic pathParameters, QueryParameterCollection queryParameters, Dictionary<string, string> headers) =>
+            await this.SendHttpRequest(HttpMethod.Delete, operation, data, pathParameters, queryParameters, headers).ConfigureAwait(false);
+        #endregion
 
         /// <summary>
         /// Sends the HTTP request based on given criteria (parameters).
@@ -458,18 +453,59 @@ namespace Salix.RestClient
                     request.Content = new StringContent(await _serializer.SerializeAsync(data), Encoding.UTF8, "application/json");
                 }
 
+                // Handling BASIC authentication
+                if (_settings.Authentication.AuthenticationType == ApiAuthenticationType.Basic)
+                {
+                    _logger.LogTrace($"Adding Basic authentication token.");
+                    var usernamePassword = Encoding.ASCII.GetBytes($"{_settings.Authentication.UserName}:{_settings.Authentication.Password}");
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(usernamePassword));
+                }
+
+                // Handling BEARER authentication
+                if (_settings.Authentication.AuthenticationType == ApiAuthenticationType.Bearer)
+                {
+                    _logger.LogTrace($"Adding Bearer token.");
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _settings.Authentication.BearerToken);
+                }
+
+                // Demand JSON by default, if not specified otherwise
+                if (!_settings.RequestHeaders.ContainsKey("Accept"))
+                {
+                    _logger.LogTrace($"Adding default Accept header for JSON.");
+                    request.Headers.Add("Accept", "application/json");
+                }
+
+                foreach (var requestHeader in _settings.RequestHeaders)
+                {
+                    _logger.LogTrace($"Adding request header {requestHeader.Key} to API RestClient request (from settings).");
+                    request.Headers.Add(requestHeader.Key, requestHeader.Value);
+                }
+
                 if (headers != null && headers.Count > 0)
                 {
                     foreach (var hdr in headers)
                     {
-                        _logger.LogTrace($"Adding request header {hdr.Key} to API RestClient request.");
-                        request.Headers.Add(hdr.Key, hdr.Value);
+                        if (request.Headers.Contains(hdr.Key))
+                        {
+                            _logger.LogTrace($"Changing value of request header {hdr.Key} in API RestClient request.");
+                            request.Headers.Remove(hdr.Key);
+                            request.Headers.Add(hdr.Key, hdr.Value);
+                        }
+                        else
+                        {
+                            _logger.LogTrace($"Adding request header {hdr.Key} to API RestClient request.");
+                            request.Headers.Add(hdr.Key, hdr.Value);
+                        }
                     }
                 }
 
                 // CALLING THE SERVICE HERE!!!
-                _logger.LogDebug($"Calling API {this.HttpClient.BaseAddress} {method} {operation}");
-                result = await this.HttpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+                using (var client = this.HttpClientFactory.CreateClient())
+                {
+                    client.BaseAddress = new Uri(_settings.ServiceUrl);
+                    _logger.LogDebug($"Calling API {client.BaseAddress} {method} {operation}");
+                    result = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+                }
             }
 
             if (!result.IsSuccessStatusCode)
@@ -512,7 +548,6 @@ namespace Salix.RestClient
         /// <param name="queryParameters">The query parameters to be added to operation URI after ? mark.</param>
         /// <param name="headers">Additional request header(s) to add to this request in addition to default global headers (added in client setup).</param>
         private async Task<T> SendHttpRequest<T>(HttpMethod method, string operation, object data = null, dynamic pathParameters = null, QueryParameterCollection queryParameters = null, Dictionary<string, string> headers = null)
-            where T : new()
         {
             HttpResponseMessage result = await this.SendHttpRequest(method, operation, data, pathParameters, queryParameters, headers);
 
@@ -523,7 +558,7 @@ namespace Salix.RestClient
 
                 // Returns null for classes or nullable value types (and strings), otherwise default value type
                 // Lists if explicitly set as type parameter get initialized as empty lists
-                return typeof(System.Collections.IEnumerable).IsAssignableFrom(typeof(T)) ? new T() : default;
+                return default;
             }
 
             var contentString = await result.Content.ReadAsStringAsync().ConfigureAwait(false);
@@ -534,41 +569,18 @@ namespace Salix.RestClient
             }
             catch (Exception ex)
             {
-                var requestUri = result.RequestMessage.RequestUri?.AbsoluteUri;
+                var requestUri = result.RequestMessage?.RequestUri?.AbsoluteUri ?? "---";
+                var requestMethod = result.RequestMessage?.Method?.Method ?? "---";
                 var errMsg =
                     $"Error occurred while deserializing API response to {typeof(T).FullName}.\n"
                     + "Make sure you are calling correct operation and deserializing result to correct type.\n"
                     + $"Request status code: {(int)result.StatusCode} ({result.StatusCode}).\n"
-                    + $"{result.RequestMessage.Method.Method} {requestUri}";
+                    + $"{requestMethod} {requestUri}";
                 var retException = new RestClientException(errMsg, ex);
                 retException.Data.Add("Api.Uri", requestUri);
-                retException.Data.Add("Api.Method", result.RequestMessage.Method.Method);
+                retException.Data.Add("Api.Method", requestMethod);
                 throw retException;
             }
-        }
-
-        /// <summary>
-        /// Exposes HttpClient default request headers collection.
-        /// Use it together with <see cref="AddOrUpdateDefaultRequestHeader(string, string)"/> method to get previous
-        /// header value (to temporary change and keep previous value).
-        /// </summary>
-        public HttpRequestHeaders DefaultRequestHeaders => this.HttpClient.DefaultRequestHeaders;
-
-        /// <summary>
-        /// Adds new default header or Updates (Changes) existing default header value .
-        /// Can be used to change initially set (in constructor) header value for Client instance.
-        /// If change should be temporary - store initial value and change it back in calling functionality.
-        /// </summary>
-        /// <param name="key">The key (name) for default header.</param>
-        /// <param name="value">The value of header to add or change for existing.</param>
-        public virtual void AddOrUpdateDefaultRequestHeader(string key, string value)
-        {
-            if (this.HttpClient.DefaultRequestHeaders.Contains(key))
-            {
-                this.HttpClient.DefaultRequestHeaders.Remove(key);
-            }
-
-            this.HttpClient.DefaultRequestHeaders.Add(key, value);
         }
 
         /// <summary>
@@ -622,6 +634,7 @@ namespace Salix.RestClient
             this.CallTime = timer.Elapsed;
         }
 
-        private string DebuggerDisplay => $"RestClient to {this.HttpClient.BaseAddress}";
+        [ExcludeFromCodeCoverage]
+        private string DebuggerDisplay => $"RestClient to {_settings.ServiceUrl}";
     }
 }

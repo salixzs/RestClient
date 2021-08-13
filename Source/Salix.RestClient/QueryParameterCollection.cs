@@ -12,6 +12,21 @@ namespace Salix.RestClient
     public class QueryParameterCollection : List<QueryParameter>
     {
         /// <summary>
+        /// Creates new empty Query Parameters collection.
+        /// </summary>
+        public QueryParameterCollection()
+        {
+        }
+
+        /// <summary>
+        /// Creates Query parameter collection with one value. More can be added by <see cref="Add(string, object)"/> method.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="value">The value.</param>
+        public QueryParameterCollection(string key, object value) =>
+            this.Add(new QueryParameter(key, value));
+
+        /// <summary>
         /// Returns serialized, encoded query string. Insertion order is preserved.
         /// </summary>
         public override string ToString() => string.Join("&", this.Select(p => p.ToString()));
@@ -73,7 +88,7 @@ namespace Salix.RestClient
             set
             {
                 var parameters = this.Where(p => p.Name == name).ToArray();
-                var values = value is IEnumerable enumValue && !(value is string) ? enumValue.Cast<object>().ToArray() : new[] { value };
+                var values = value is IEnumerable enumValue and not string ? enumValue.Cast<object>().ToArray() : new[] { value };
                 for (var i = 0; ; i++)
                 {
                     if (i < parameters.Length && i < values.Length)
