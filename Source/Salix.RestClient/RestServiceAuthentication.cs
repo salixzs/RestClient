@@ -21,7 +21,7 @@ namespace Salix.RestClient
         public string UserName { get; set; }
 
         /// <summary>
-        /// Password (with <see cref="Username"/>) for authentication when type is Basic.
+        /// Password (with <see cref="UserName"/>) for authentication when type is Basic.
         /// </summary>
         public string Password { get; set; }
 

@@ -1,5 +1,8 @@
 namespace Salix.RestClient
 {
+    /// <summary>
+    /// Should be used to specify authentication type for REST client.
+    /// </summary>
     public enum ApiAuthenticationType
     {
         /// <summary>

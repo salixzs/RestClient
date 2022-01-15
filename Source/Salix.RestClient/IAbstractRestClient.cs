@@ -66,7 +66,6 @@ namespace Salix.RestClient
         /// Performs Asynchronous HTTP GET operation with specified operation URL (may contain some business ID(s)) and optional query parameters.
         /// Returns Raw HttpResponseMessage. Can be used with XML SOAP services to be able to retrieve non-JSON data.
         /// </summary>
-        /// <typeparam name="T">Type of data to retrieve.</typeparam>
         /// <param name="operation">The operation URL.</param>
         Task<HttpResponseMessage> GetAsync(string operation);
 
@@ -74,7 +73,6 @@ namespace Salix.RestClient
         /// Performs Asynchronous HTTP GET operation with specified operation URL (may contain some business ID(s)) and optional query parameters.
         /// Returns Raw HttpResponseMessage. Can be used with XML SOAP services to be able to retrieve nonJSON data.
         /// </summary>
-        /// <typeparam name="T">Type of data to retrieve.</typeparam>
         /// <param name="operation">The operation URL.</param>
         /// <param name="data">The data to be sent as request payload.</param>
         Task<HttpResponseMessage> GetAsync(string operation, object data);
@@ -83,7 +81,6 @@ namespace Salix.RestClient
         /// Performs Asynchronous HTTP GET operation with specified operation URL (may contain some business ID(s)) and optional query parameters.
         /// Returns Raw HttpResponseMessage. Can be used with XML SOAP services to be able to retrieve non-JSON data.
         /// </summary>
-        /// <typeparam name="T">Type of data to retrieve.</typeparam>
         /// <param name="operation">The operation URL.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         /// <param name="data">The data to be sent as request payload.</param>
@@ -93,7 +90,6 @@ namespace Salix.RestClient
         /// Performs Asynchronous HTTP GET operation with specified operation URL (may contain some business ID(s)) and optional query parameters.
         /// Returns Raw HttpResponseMessage. Can be used with XML SOAP services to be able to retrieve non-JSON data.
         /// </summary>
-        /// <typeparam name="T">Type of data to retrieve.</typeparam>
         /// <param name="operation">The operation URL.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
@@ -104,7 +100,6 @@ namespace Salix.RestClient
         /// Performs Asynchronous HTTP GET operation with specified operation URL (may contain some business ID(s)) and optional query parameters.
         /// Returns Raw HttpResponseMessage. Can be used with XML SOAP services to be able to retrieve non-JSON data.
         /// </summary>
-        /// <typeparam name="T">Type of data to retrieve.</typeparam>
         /// <param name="operation">The operation URL.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
@@ -117,7 +112,7 @@ namespace Salix.RestClient
         /// Returns Raw HttpResponseMessage to handle all in caller side. Can be used to call SOPA services (XML data serialization).
         /// </summary>
         /// <typeparam name="T">Type of data that will be retrieved.</typeparam>
-        /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this. May contain IDs of business objects.</param>
+        /// <param name="operation">The operation URL. May contain IDs of business objects.</param>
         /// <param name="data">Data object that should be sent to server.</param>
         Task<T> PostAsync<T>(string operation, object data);
 
@@ -126,7 +121,7 @@ namespace Salix.RestClient
         /// Returns Raw HttpResponseMessage to handle all in caller side. Can be used to call SOPA services (XML data serialization).
         /// </summary>
         /// <typeparam name="T">Type of data that will be retrieved.</typeparam>
-        /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this. May contain IDs of business objects.</param>
+        /// <param name="operation">The operation URL. May contain IDs of business objects.</param>
         /// <param name="data">Data object that should be sent to server.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         Task<T> PostAsync<T>(string operation, object data, dynamic pathParameters);
@@ -136,7 +131,7 @@ namespace Salix.RestClient
         /// Returns Raw HttpResponseMessage to handle all in caller side. Can be used to call SOPA services (XML data serialization).
         /// </summary>
         /// <typeparam name="T">Type of data that will be retrieved.</typeparam>
-        /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this. May contain IDs of business objects.</param>
+        /// <param name="operation">The operation URL. May contain IDs of business objects.</param>
         /// <param name="data">Data object that should be sent to server.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
@@ -147,7 +142,7 @@ namespace Salix.RestClient
         /// Returns Raw HttpResponseMessage to handle all in caller side. Can be used to call SOPA services (XML data serialization).
         /// </summary>
         /// <typeparam name="T">Type of data that will be retrieved.</typeparam>
-        /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this. May contain IDs of business objects.</param>
+        /// <param name="operation">The operation URL. May contain IDs of business objects.</param>
         /// <param name="data">Data object that should be sent to server.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
@@ -158,7 +153,7 @@ namespace Salix.RestClient
         /// Performs Asynchronous HTTP POST operation with specified operation URL and data.
         /// Returns Raw HttpResponseMessage to handle all in caller side. Can be used to call SOPA services (XML data serialization).
         /// </summary>
-        /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this. May contain IDs of business objects.</param>
+        /// <param name="operation">The operation URL. May contain IDs of business objects.</param>
         /// <param name="data">Data object that should be sent to server.</param>
         Task<HttpResponseMessage> PostAsync(string operation, object data);
 
@@ -166,7 +161,7 @@ namespace Salix.RestClient
         /// Performs Asynchronous HTTP POST operation with specified operation URL and data.
         /// Returns Raw HttpResponseMessage to handle all in caller side. Can be used to call SOPA services (XML data serialization).
         /// </summary>
-        /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this. May contain IDs of business objects.</param>
+        /// <param name="operation">The operation URL. May contain IDs of business objects.</param>
         /// <param name="data">Data object that should be sent to server.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         Task<HttpResponseMessage> PostAsync(string operation, object data, dynamic pathParameters);
@@ -175,7 +170,7 @@ namespace Salix.RestClient
         /// Performs Asynchronous HTTP POST operation with specified operation URL and data.
         /// Returns Raw HttpResponseMessage to handle all in caller side. Can be used to call SOPA services (XML data serialization).
         /// </summary>
-        /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this. May contain IDs of business objects.</param>
+        /// <param name="operation">The operation URL. May contain IDs of business objects.</param>
         /// <param name="data">Data object that should be sent to server.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
@@ -185,7 +180,7 @@ namespace Salix.RestClient
         /// Performs Asynchronous HTTP POST operation with specified operation URL and data.
         /// Returns Raw HttpResponseMessage to handle all in caller side. Can be used to call SOPA services (XML data serialization).
         /// </summary>
-        /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this. May contain IDs of business objects.</param>
+        /// <param name="operation">The operation URL. May contain IDs of business objects.</param>
         /// <param name="data">Data object that should be sent to server.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
@@ -197,7 +192,7 @@ namespace Salix.RestClient
         /// Usually used to perform data updates through API services. Note: Uses PUT method under curtains.
         /// </summary>
         /// <typeparam name="T">Type of data that will be retrieved.</typeparam>
-        /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this.</param>
+        /// <param name="operation">The operation URL.</param>
         /// <param name="data">Data object that should be sent to server.</param>
         Task<T> PatchAsync<T>(string operation, object data);
 
@@ -206,7 +201,7 @@ namespace Salix.RestClient
         /// Usually used to perform data updates through API services. Note: Uses PUT method under curtains.
         /// </summary>
         /// <typeparam name="T">Type of data that will be retrieved.</typeparam>
-        /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this.</param>
+        /// <param name="operation">The operation URL.</param>
         /// <param name="data">Data object that should be sent to server.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         Task<T> PatchAsync<T>(string operation, object data, dynamic pathParameters);
@@ -216,7 +211,7 @@ namespace Salix.RestClient
         /// Usually used to perform data updates through API services. Note: Uses PUT method under curtains.
         /// </summary>
         /// <typeparam name="T">Type of data that will be retrieved.</typeparam>
-        /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this.</param>
+        /// <param name="operation">The operation URL.</param>
         /// <param name="data">Data object that should be sent to server.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
@@ -227,7 +222,7 @@ namespace Salix.RestClient
         /// Usually used to perform data updates through API services. Note: Uses PUT method under curtains.
         /// </summary>
         /// <typeparam name="T">Type of data that will be retrieved.</typeparam>
-        /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this.</param>
+        /// <param name="operation">The operation URL.</param>
         /// <param name="data">Data object that should be sent to server.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
@@ -239,7 +234,7 @@ namespace Salix.RestClient
         /// Usually used to perform data updates through API services.
         /// </summary>
         /// <typeparam name="T">Type of data that will be retrieved.</typeparam>
-        /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this.</param>
+        /// <param name="operation">The operation URL.</param>
         /// <param name="data">Data object that should be sent to server.</param>
         Task<T> PutAsync<T>(string operation, object data);
 
@@ -248,7 +243,7 @@ namespace Salix.RestClient
         /// Usually used to perform data updates through API services.
         /// </summary>
         /// <typeparam name="T">Type of data that will be retrieved.</typeparam>
-        /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this.</param>
+        /// <param name="operation">The operation URL.</param>
         /// <param name="data">Data object that should be sent to server.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         Task<T> PutAsync<T>(string operation, object data, dynamic pathParameters);
@@ -258,7 +253,7 @@ namespace Salix.RestClient
         /// Usually used to perform data updates through API services.
         /// </summary>
         /// <typeparam name="T">Type of data that will be retrieved.</typeparam>
-        /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this.</param>
+        /// <param name="operation">The operation URL.</param>
         /// <param name="data">Data object that should be sent to server.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
@@ -269,7 +264,7 @@ namespace Salix.RestClient
         /// Usually used to perform data updates through API services.
         /// </summary>
         /// <typeparam name="T">Type of data that will be retrieved.</typeparam>
-        /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this.</param>
+        /// <param name="operation">The operation URL.</param>
         /// <param name="data">Data object that should be sent to server.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
@@ -280,7 +275,7 @@ namespace Salix.RestClient
         /// Performs Asynchronous HTTP DELETE operation with specified operation URL (may contain some business ID(s)) and optional query parameters
         /// Usually used to perform data removal from API services.
         /// </summary>
-        /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this. May contain IDs of business objects.</param>
+        /// <param name="operation">The operation URL. May contain IDs of business objects.</param>
         /// <param name="data">Data object that should be sent to server.</param>
         Task DeleteAsync(string operation, object data);
 
@@ -288,7 +283,7 @@ namespace Salix.RestClient
         /// Performs Asynchronous HTTP DELETE operation with specified operation URL (may contain some business ID(s)) and optional query parameters
         /// Usually used to perform data removal from API services.
         /// </summary>
-        /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this. May contain IDs of business objects.</param>
+        /// <param name="operation">The operation URL. May contain IDs of business objects.</param>
         /// <param name="data">Data object that should be sent to server.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         Task DeleteAsync(string operation, object data, dynamic pathParameters);
@@ -297,7 +292,7 @@ namespace Salix.RestClient
         /// Performs Asynchronous HTTP DELETE operation with specified operation URL (may contain some business ID(s)) and optional query parameters
         /// Usually used to perform data removal from API services.
         /// </summary>
-        /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this. May contain IDs of business objects.</param>
+        /// <param name="operation">The operation URL. May contain IDs of business objects.</param>
         /// <param name="data">Data object that should be sent to server.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
@@ -307,7 +302,7 @@ namespace Salix.RestClient
         /// Performs Asynchronous HTTP DELETE operation with specified operation URL (may contain some business ID(s)) and optional query parameters
         /// Usually used to perform data removal from API services.
         /// </summary>
-        /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this. May contain IDs of business objects.</param>
+        /// <param name="operation">The operation URL. May contain IDs of business objects.</param>
         /// <param name="data">Data object that should be sent to server.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
@@ -319,7 +314,7 @@ namespace Salix.RestClient
         /// Usually used to perform data removal from API services.
         /// </summary>
         /// <typeparam name="T">Type of data.</typeparam>
-        /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this. May contain IDs of business objects.</param>
+        /// <param name="operation">The operation URL. May contain IDs of business objects.</param>
         /// <param name="data">Data object that should be sent to server.</param>
         Task<T> DeleteAsync<T>(string operation, object data);
 
@@ -328,7 +323,7 @@ namespace Salix.RestClient
         /// Usually used to perform data removal from API services.
         /// </summary>
         /// <typeparam name="T">Type of data.</typeparam>
-        /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this. May contain IDs of business objects.</param>
+        /// <param name="operation">The operation URL. May contain IDs of business objects.</param>
         /// <param name="data">Data object that should be sent to server.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         Task<T> DeleteAsync<T>(string operation, object data, dynamic pathParameters);
@@ -338,7 +333,7 @@ namespace Salix.RestClient
         /// Usually used to perform data removal from API services.
         /// </summary>
         /// <typeparam name="T">Type of data.</typeparam>
-        /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this. May contain IDs of business objects.</param>
+        /// <param name="operation">The operation URL. May contain IDs of business objects.</param>
         /// <param name="data">Data object that should be sent to server.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
@@ -349,7 +344,7 @@ namespace Salix.RestClient
         /// Usually used to perform data removal from API services.
         /// </summary>
         /// <typeparam name="T">Type of data.</typeparam>
-        /// <param name="operation">The operation URL. Use <see cref="Dto.Endpoints"/> namespace definitions for this. May contain IDs of business objects.</param>
+        /// <param name="operation">The operation URL. May contain IDs of business objects.</param>
         /// <param name="data">Data object that should be sent to server.</param>
         /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
         /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
