@@ -60,9 +60,9 @@ namespace RestClient.Tests
         [Fact]
         public async Task Create_Default_CorrectUrlAndMediaType()
         {
-            var testable = new TestClient(
+            var testable = new TestClientFactory(
                 _factoryMock.Object,
-                new RestServiceSettings { ServiceUrl = "http://mypc/webapi/" },
+                new RestServiceSettings { BaseAddress = "http://mypc/webapi/" },
                 _logger);
 
             await testable.GetAsync("any/operation");
@@ -74,9 +74,9 @@ namespace RestClient.Tests
         [Fact]
         public async Task Get_JustUrl_RequestHasCorrectURL()
         {
-            var testable = new TestClient(
+            var testable = new TestClientFactory(
                 _factoryMock.Object,
-                new RestServiceSettings { ServiceUrl = "http://mypc/webapi/" },
+                new RestServiceSettings { BaseAddress = "http://mypc/webapi/" },
                 _logger);
             await testable.GetAsync("base");
             _requestMessage.RequestUri.AbsolutePath.Should().Be("/webapi/base");
@@ -85,9 +85,9 @@ namespace RestClient.Tests
         [Fact]
         public async Task Get_UrlPlaceholders_RequestHasCorrectURL()
         {
-            var testable = new TestClient(
+            var testable = new TestClientFactory(
                 _factoryMock.Object,
-                new RestServiceSettings { ServiceUrl = "http://mypc/webapi/" },
+                new RestServiceSettings { BaseAddress = "http://mypc/webapi/" },
                 _logger);
             await testable.GetAsync("base/{id}/sub/{key}", new { id = 777, key = "abc" });
             _requestMessage.RequestUri.AbsolutePath.Should().Be("/webapi/base/777/sub/abc");
@@ -96,9 +96,9 @@ namespace RestClient.Tests
         [Fact]
         public async Task Get_QueryParams_RequestHasCorrectURL()
         {
-            var testable = new TestClient(
+            var testable = new TestClientFactory(
                 _factoryMock.Object,
-                new RestServiceSettings { ServiceUrl = "http://mypc/webapi/" },
+                new RestServiceSettings { BaseAddress = "http://mypc/webapi/" },
                 _logger);
             await testable.GetAsync<DateTime>("base", null, new QueryParameterCollection { new QueryParameter("filter", "all"), new QueryParameter("page", 3) }, null);
             _requestMessage.RequestUri.PathAndQuery.Should().Be("/webapi/base?filter=all&page=3");
@@ -107,9 +107,9 @@ namespace RestClient.Tests
         [Fact]
         public async Task Get_AllParams_RequestHasCorrectURL()
         {
-            var testable = new TestClient(
+            var testable = new TestClientFactory(
                 _factoryMock.Object,
-                new RestServiceSettings { ServiceUrl = "http://mypc/webapi/" },
+                new RestServiceSettings { BaseAddress = "http://mypc/webapi/" },
                 _logger);
             await testable.GetAsync<DateTime>(
                 "person/{id}",
@@ -123,11 +123,11 @@ namespace RestClient.Tests
         [Fact]
         public async Task Create_XMLAndCustom_IsSet()
         {
-            var testable = new TestClient(
+            var testable = new TestClientFactory(
                 _factoryMock.Object,
                 new RestServiceSettings
                 {
-                    ServiceUrl = "http://mypc/webapi",
+                    BaseAddress = "http://mypc/webapi",
                     RequestHeaders = new Dictionary<string, string>
                         {
                             { "Accept", "string/xml" },
@@ -151,11 +151,11 @@ namespace RestClient.Tests
         [Fact]
         public async Task DefaultRequestHeaders_Get_ReturnsHttpClientHeaders()
         {
-            var testable = new TestClient(
+            var testable = new TestClientFactory(
                 _factoryMock.Object,
                 new RestServiceSettings
                 {
-                    ServiceUrl = "http://mypc/webapi",
+                    BaseAddress = "http://mypc/webapi",
                     RequestHeaders = new Dictionary<string, string> { { "Accept", "string/xml" }, { "Existing", "1" } }
                 },
                 _logger);
@@ -170,11 +170,11 @@ namespace RestClient.Tests
         public async Task ChangeHeader_Existing_IsChanged()
         {
             var logger = new Mock<ILogger>();
-            var testable = new TestClient(
+            var testable = new TestClientFactory(
                 _factoryMock.Object,
                 new RestServiceSettings
                 {
-                    ServiceUrl = "http://mypc/webapi",
+                    BaseAddress = "http://mypc/webapi",
                     RequestHeaders = new Dictionary<string, string> { { "Accept", "string/xml" }, { "Existing", "1" } }
                 },
                 _logger);
@@ -190,11 +190,11 @@ namespace RestClient.Tests
         [Fact]
         public async Task Create_BasicAuthentication_IsSet()
         {
-            var testable = new TestClient(
+            var testable = new TestClientFactory(
                 _factoryMock.Object,
                 new RestServiceSettings
                 {
-                    ServiceUrl = "http://mypc/webapi",
+                    BaseAddress = "http://mypc/webapi",
                     Authentication = new RestServiceAuthentication
                     {
                         AuthenticationType = ApiAuthenticationType.Basic,
@@ -214,11 +214,11 @@ namespace RestClient.Tests
         public void PostAsync_Inheritance_AllFieldsSerializedForSending()
         {
             var httpMessageHandler = new Mock<HttpMessageHandler>();
-            var testable = new TestClient(
+            var testable = new TestClientFactory(
                 _factoryMock.Object,
                 new RestServiceSettings
                 {
-                    ServiceUrl = "http://mypc/webapi/",
+                    BaseAddress = "http://mypc/webapi/",
                     RequestHeaders = new Dictionary<string, string> { { "SID", "111111" } }
                 },
                 _logger);
@@ -275,11 +275,11 @@ namespace RestClient.Tests
         {
             var logger = new Mock<ILogger>();
             var httpMessageHandler = new Mock<HttpMessageHandler>();
-            var testable = new TestClient(
+            var testable = new TestClientFactory(
                 _factoryMock.Object,
                 new RestServiceSettings
                 {
-                    ServiceUrl = "http://mypc/webapi/"
+                    BaseAddress = "http://mypc/webapi/"
                 },
                 logger.Object);
             var error = "something wrong";
@@ -315,11 +315,11 @@ namespace RestClient.Tests
         public void GetAsync_WrongData_SerializationException()
         {
             var httpMessageHandler = new Mock<HttpMessageHandler>();
-            var testable = new TestClient(
+            var testable = new TestClientFactory(
                 _factoryMock.Object,
                 new RestServiceSettings
                 {
-                    ServiceUrl = "http://mypc/webapi/"
+                    BaseAddress = "http://mypc/webapi/"
                 },
                 _logger);
             var httpResponse = new HttpResponseMessage

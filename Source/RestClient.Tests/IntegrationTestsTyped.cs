@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http;
@@ -11,22 +10,18 @@ using Xunit.Abstractions;
 namespace RestClient.Tests
 {
     [ExcludeFromCodeCoverage]
-    public class IntegrationTests
+    public class IntegrationTestsTyped
     {
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly XUnitLogger<HttpBinClient> _logger;
-        private HttpBinClient _api;
+        private readonly HttpClient _httpClient = new();
+        private readonly XUnitLogger<BinClientTyped> _logger;
+        private BinClientTyped _api;
 
-        public IntegrationTests(ITestOutputHelper output)
-        {
-            _httpClientFactory = new TestHttpClientFactory();
-            _logger = new XUnitLogger<HttpBinClient>(output);
-        }
+        public IntegrationTestsTyped(ITestOutputHelper output) => _logger = new XUnitLogger<BinClientTyped>(output);
 
         [Fact]
         public async Task Get_Guid_Succeeds()
         {
-            _api = new HttpBinClient(_httpClientFactory, new RestServiceSettings { ServiceUrl = "https://httpbin.org" }, _logger);
+            _api = new BinClientTyped(_httpClient, new RestServiceSettings { BaseAddress = "https://httpbin.org" }, _logger);
             var result = await _api.GetAsync<GuidHolder>("uuid");
             result.Should().NotBeNull();
             result.uuid.Should().NotBeEmpty();
@@ -35,7 +30,7 @@ namespace RestClient.Tests
         [Fact]
         public async Task Auth_BasicCorrect_Succeeds()
         {
-            _api = new HttpBinClient(_httpClientFactory, new RestServiceSettings { ServiceUrl = "https://httpbin.org", Authentication = new RestServiceAuthentication { AuthenticationType = ApiAuthenticationType.Basic, UserName = "me", Password = "secret" } }, _logger);
+            _api = new BinClientTyped(_httpClient, new RestServiceSettings { BaseAddress = "https://httpbin.org", Authentication = new RestServiceAuthentication { AuthenticationType = ApiAuthenticationType.Basic, UserName = "me", Password = "secret" } }, _logger);
             var result = await _api.GetAsync("basic-auth/{user}/{password}", new { user = "me", password = "secret" });
             result.Should().NotBeNull();
             result.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -44,7 +39,7 @@ namespace RestClient.Tests
         [Fact]
         public async Task Auth_BasicWrong_Unauthorized()
         {
-            _api = new HttpBinClient(_httpClientFactory, new RestServiceSettings { ServiceUrl = "https://httpbin.org", Authentication = new RestServiceAuthentication { AuthenticationType = ApiAuthenticationType.Basic, UserName = "me", Password = "secret" } }, _logger);
+            _api = new BinClientTyped(_httpClient, new RestServiceSettings { BaseAddress = "https://httpbin.org", Authentication = new RestServiceAuthentication { AuthenticationType = ApiAuthenticationType.Basic, UserName = "me", Password = "secret" } }, _logger);
             try
             {
                 var result = await _api.GetAsync("basic-auth/{user}/{password}", new { user = "notme", password = "hola" });
@@ -59,18 +54,12 @@ namespace RestClient.Tests
         [Fact]
         public async Task Auth_Bearer_Succeeds()
         {
-            _api = new HttpBinClient(_httpClientFactory, new RestServiceSettings { ServiceUrl = "https://httpbin.org", Authentication = new RestServiceAuthentication { AuthenticationType = ApiAuthenticationType.Bearer, BearerToken = "123123123123" } }, _logger);
+            _api = new BinClientTyped(_httpClient, new RestServiceSettings { BaseAddress = "https://httpbin.org", Authentication = new RestServiceAuthentication { AuthenticationType = ApiAuthenticationType.External } }, _logger);
             var result = await _api.GetAsync("bearer");
             result.Should().NotBeNull();
             result.StatusCode.Should().Be(HttpStatusCode.OK);
             var response = await result.Content.ReadAsStringAsync();
             response.Should().Contain("123123123123");
         }
-    }
-
-    [ExcludeFromCodeCoverage]
-    public class GuidHolder
-    {
-        public Guid uuid { get; set; }
     }
 }

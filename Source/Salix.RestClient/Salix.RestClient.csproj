@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <!-- === General properties ===-->
   <PropertyGroup>
@@ -9,6 +9,8 @@
     <NeutralLanguage>en</NeutralLanguage>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <DebugType>portable</DebugType>
+    <Nullable>enable</Nullable>
+    <NoWarn>1701;1702;IDE0160</NoWarn>
   </PropertyGroup>
 
   <!-- === NuGet package description properties ===-->
@@ -24,11 +26,10 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>RestClient.png</PackageIcon>
     <Description>
-Wrapper (abstract base classes) around IHttpClientFactory handled HttpClient instance to help interacting with external RESTful APIs.
-Create multiple derived clients for multiple APIs.
+Wrappers (abstract base classes) around IHttpClientFactory handled HttpClient instance to help interacting with external RESTful APIs.
+Ability to get directly strongly typed objects (choose between Json.Net [default] and String.net serializers.
+Provides extension methods for GET, POST and others to skip HttpRequest setup. Reads all parameters seemlessly from configuration object.
 Provides path and query parametrization for API URLs as well as default and on-fly header value additions to calls.
-Provides few authentication mechanisms.
-Json serialization defaults to Newtonsoft. Included optional System.Text.Json serializer.
     </Description>
     <PackageProjectUrl>https://github.com/salixzs/RestClient</PackageProjectUrl>
     <RepositoryUrl>https://github.com/salixzs/RestClient</RepositoryUrl>
@@ -36,11 +37,15 @@ Json serialization defaults to Newtonsoft. Included optional System.Text.Json se
     <PackageReadmeFile>README.md</PackageReadmeFile>
 
     <PackageReleaseNotes>
-Intellisense comments. Comment fixes. Test project package updates.
+Heavy breaking changes! Considerable rewrite again.
+Now provides 3 base abstract classes for each aproach - Factory, Named and Typed HttpClient instance usages.
+Added method to read authentication token or apiKey from outside via overrideable method call before each HttpClient request.
+Added missing extension methods + and heavily documented all.
+Package is now using NULLABLE reference types.
     </PackageReleaseNotes>
-    <Version>2.0.1</Version>
-    <AssemblyVersion>2.0.1.0</AssemblyVersion>
-    <FileVersion>2.0.1.0</FileVersion>
+    <Version>3.0.0</Version>
+    <AssemblyVersion>3.0.0.0</AssemblyVersion>
+    <FileVersion>3.0.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -51,10 +56,10 @@ Intellisense comments. Comment fixes. Test project package updates.
   <!-- === NuGet dependencies ===-->
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.18" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.18" />
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    <PackageReference Include="System.Text.Json" Version="5.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="3.1.22" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.22" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="System.Text.Json" Version="6.0.2" />
   </ItemGroup>
 
 </Project>
