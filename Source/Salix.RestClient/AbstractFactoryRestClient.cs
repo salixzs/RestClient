@@ -1,3 +1,4 @@
+using System;
 using System.Net.Http;
 using Microsoft.Extensions.Logging;
 
@@ -9,6 +10,7 @@ namespace Salix.RestClient;
 public abstract class AbstractFactoryRestClient : HttpClientExtender
 {
     private readonly IHttpClientFactory _httpClientFactory;
+    private HttpClient? _httpClient;
 
     /// <summary>
     /// Generic, typed REST (API) Service client instance.
@@ -28,5 +30,15 @@ public abstract class AbstractFactoryRestClient : HttpClientExtender
     /// <summary>
     /// Method to get a HttpClient from named HttpClientFactory.
     /// </summary>
-    protected override HttpClient GetHttpClient() => _httpClientFactory.CreateClient();
+    protected override HttpClient GetHttpClient(Uri baseAddress)
+    {
+        if (_httpClient != null)
+        {
+            return _httpClient;
+        }
+
+        _httpClient = _httpClientFactory.CreateClient();
+        _httpClient.BaseAddress = baseAddress;
+        return _httpClient;
+    }
 }

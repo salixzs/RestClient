@@ -1,3 +1,4 @@
+using System;
 using System.Net.Http;
 using Microsoft.Extensions.Logging;
 
@@ -26,5 +27,15 @@ public abstract class AbstractTypedRestClient : HttpClientExtender
     /// <summary>
     /// Method to get the injected HttpClient.
     /// </summary>
-    protected override HttpClient GetHttpClient() => _httpClient;
+    protected override HttpClient GetHttpClient(Uri baseAddress)
+    {
+        // Should not set base address twice
+        if (_httpClient.BaseAddress == baseAddress)
+        {
+            return _httpClient;
+        }
+
+        _httpClient.BaseAddress = baseAddress;
+        return _httpClient;
+    }
 }

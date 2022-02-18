@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32203.90
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RestClient.Sample", "RestClient.Sample.csproj", "{DAF263FF-7849-41BF-8819-2E4E2E21DF97}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Salix.RestClient", "..\Source\Salix.RestClient\Salix.RestClient.csproj", "{64BBDA25-7010-4F5A-B456-56A854ECE3CA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DAF263FF-7849-41BF-8819-2E4E2E21DF97}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DAF263FF-7849-41BF-8819-2E4E2E21DF97}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DAF263FF-7849-41BF-8819-2E4E2E21DF97}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAF263FF-7849-41BF-8819-2E4E2E21DF97}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64BBDA25-7010-4F5A-B456-56A854ECE3CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64BBDA25-7010-4F5A-B456-56A854ECE3CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64BBDA25-7010-4F5A-B456-56A854ECE3CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64BBDA25-7010-4F5A-B456-56A854ECE3CA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EE362EE9-8E6D-4CA4-BC13-A134A19453C9}
+	EndGlobalSection
+EndGlobal

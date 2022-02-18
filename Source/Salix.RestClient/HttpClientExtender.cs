@@ -22,7 +22,7 @@ public abstract partial class HttpClientExtender
     /// <summary>
     /// Method to get a HttpClient from inheriting class.
     /// </summary>
-    protected abstract HttpClient GetHttpClient();
+    protected abstract HttpClient GetHttpClient(Uri baseAddress);
 
     /// <summary>
     /// Method to be overriden in inheriting class to retrieve authentication key-value pair (eg. Bearer Token)
@@ -130,12 +130,9 @@ public abstract partial class HttpClientExtender
             }
 
             // CALLING THE SERVICE HERE!!!
-            using (var client = this.GetHttpClient())
-            {
-                client.BaseAddress = new Uri(_settings.BaseAddress);
-                _logger.LogDebug($"Calling API {client.BaseAddress} {method} {operation}");
-                result = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
-            }
+            var client = this.GetHttpClient(new Uri(_settings.BaseAddress));
+            _logger.LogDebug($"Calling API {client.BaseAddress} {method} {operation}");
+            result = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
         }
 
         if (!result.IsSuccessStatusCode)

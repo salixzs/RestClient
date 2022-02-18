@@ -1,4 +1,3 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http;
@@ -27,9 +26,21 @@ namespace RestClient.Tests
         public async Task Get_Guid_Succeeds()
         {
             _api = new BinClientHttpFactory(_httpClientFactory, new RestServiceSettings { BaseAddress = "https://httpbin.org" }, _logger);
-            var result = await _api.GetAsync<GuidHolder>("uuid");
+            var result = await _api.GetAsync<Uuid>("uuid");
             result.Should().NotBeNull();
             result.uuid.Should().NotBeEmpty();
+        }
+
+        [Fact]
+        public async Task Get_TwoCalls_Succeeds()
+        {
+            _api = new BinClientHttpFactory(_httpClientFactory, new RestServiceSettings { BaseAddress = "https://httpbin.org" }, _logger);
+            var result1 = await _api.GetAsync<Uuid>("uuid");
+            var result2 = await _api.GetAsync<MyIp>("ip");
+            result1.Should().NotBeNull();
+            result1.uuid.Should().NotBeEmpty();
+            result2.Should().NotBeNull();
+            result2.origin.Should().NotBeEmpty().And.Contain(".");
         }
 
         [Fact]
@@ -66,11 +77,5 @@ namespace RestClient.Tests
             var response = await result.Content.ReadAsStringAsync();
             response.Should().Contain("123123123123");
         }
-    }
-
-    [ExcludeFromCodeCoverage]
-    public class GuidHolder
-    {
-        public Guid uuid { get; set; }
     }
 }
