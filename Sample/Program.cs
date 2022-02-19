@@ -74,8 +74,9 @@ public class Program
         //services.AddHttpClient<TypedClient>();
         //services.AddTransient<IConsoleOperation, CommandTypedClient>();
 
-        // NAMED client: Uncomment three lines below
-        //services.AddHttpClient("named");
+        // NAMED client: Uncomment 4 lines below
+        //restClientSettings.FactoryName = "named";
+        //services.AddHttpClient(restClientSettings.FactoryName);
         //services.AddTransient<NamedClient>();
         //services.AddTransient<IConsoleOperation, CommandNamedClient>();
 
@@ -85,8 +86,13 @@ public class Program
         //services.AddTransient<IConsoleOperation, CommandFactoryClient>();
 
         // TYPED client (with INTERFACE): Uncomment two lines below
-        services.AddHttpClient<ITypedClientInterface, TypedClientWithInterface>();
-        services.AddTransient<IConsoleOperation, CommandTypedClientWithInterface>();
+        //services.AddHttpClient<ITypedClientInterface, TypedClientWithInterface>();
+        //services.AddTransient<IConsoleOperation, CommandTypedClientWithInterface>();
+
+        // SERIALIZER change to System.Text.Json: Uncomment three lines below
+        services.AddScoped<IObjectSerializer, SystemTextJsonObjectSerializer>();
+        services.AddHttpClient<TypedClientTextJsonSerializer>();
+        services.AddTransient<IConsoleOperation, CommandTypedClientTextJsonSerializer>();
 
         // Required registrations
         services.AddTransient<ConsoleOperationHandler>();

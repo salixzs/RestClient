@@ -17,11 +17,8 @@ public class CommandTypedClientWithInterface : IConsoleOperation
         var clientResult = await _client.GetUuid();
         Consolix.WriteLine("Client method call to get uuid returned: {0}", clientResult, ConsoleColor.DarkYellow, ConsoleColor.Cyan);
 
-        var ip = await _client.GetAsync<IpAddress>("ip");
-        Consolix.WriteLine("Your IP address is: {0}", ip.origin, ConsoleColor.DarkYellow, ConsoleColor.Cyan);
-
-        var directResult = await _client.GetAsync<BinUuid>("uuid");
-        Consolix.WriteLine("Direct extension call to uuid returned: {0}", directResult.uuid, ConsoleColor.DarkYellow, ConsoleColor.Cyan);
+        var directResult = await _client.GetAsync<IpAddress>("ip");
+        Consolix.WriteLine("Your IP address is: {0}", directResult.origin, ConsoleColor.DarkYellow, ConsoleColor.Cyan);
 
         return 0;
     }

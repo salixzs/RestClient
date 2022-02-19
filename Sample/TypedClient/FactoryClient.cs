@@ -3,7 +3,7 @@ using Salix.RestClient;
 
 namespace RestClient.Sample;
 
-public class FactoryClient : AbstractFactoryRestClient
+public class FactoryClient : AbstractRestClient
 {
     public FactoryClient(IHttpClientFactory httpClientFactory, ClientSettings settings, ILogger<FactoryClient> logger) : base(httpClientFactory, settings, logger)
     { }

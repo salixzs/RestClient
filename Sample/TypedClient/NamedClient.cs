@@ -3,10 +3,8 @@ using Salix.RestClient;
 
 namespace RestClient.Sample;
 
-public class NamedClient : AbstractNamedRestClient
+public class NamedClient : AbstractRestClient
 {
     public NamedClient(IHttpClientFactory httpClientFactory, ClientSettings settings, ILogger<NamedClient> logger) : base(httpClientFactory, settings, logger)
     { }
-
-    protected override string ClientName => "named";
 }

@@ -15,6 +15,11 @@ public class RestServiceSettings
     public string BaseAddress { get; set; } = null!;
 
     /// <summary>
+    /// For named factory/client - set this to desired name to be used.
+    /// </summary>
+    public string? FactoryName { get; set; }
+
+    /// <summary>
     /// Sets authentication type and authentication parameters for REST API calls.
     /// </summary>
     public RestServiceAuthentication Authentication { get; set; } = new RestServiceAuthentication();

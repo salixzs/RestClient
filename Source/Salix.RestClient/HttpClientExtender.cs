@@ -20,9 +20,9 @@ namespace Salix.RestClient;
 public abstract partial class HttpClientExtender
 {
     /// <summary>
-    /// Method to get a HttpClient from inheriting class.
+    /// Injected HttpClient instance from derived class.
     /// </summary>
-    protected abstract HttpClient GetHttpClient(Uri baseAddress);
+    protected HttpClient HttpClientInstance { get; set; } = null!;
 
     /// <summary>
     /// Method to be overriden in inheriting class to retrieve authentication key-value pair (eg. Bearer Token)
@@ -48,7 +48,9 @@ public abstract partial class HttpClientExtender
     /// <summary>
     /// Generic, typed REST (API) Service client instance.
     /// </summary>
+#pragma warning disable CS8618 // HttpClientInstance is created by derived class.
     protected HttpClientExtender(RestServiceSettings settings, ILogger logger, IObjectSerializer? serializer)
+#pragma warning restore CS8618
     {
         _settings = settings ?? throw new ArgumentNullException(nameof(settings));
         _logger = logger;
@@ -130,9 +132,8 @@ public abstract partial class HttpClientExtender
             }
 
             // CALLING THE SERVICE HERE!!!
-            var client = this.GetHttpClient(new Uri(_settings.BaseAddress));
-            _logger.LogDebug($"Calling API {client.BaseAddress} {method} {operation}");
-            result = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+            _logger.LogDebug($"Calling API {this.HttpClientInstance.BaseAddress} {method} {operation}");
+            result = await this.HttpClientInstance.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
         }
 
         if (!result.IsSuccessStatusCode)

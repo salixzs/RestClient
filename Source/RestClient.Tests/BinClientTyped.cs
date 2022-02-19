@@ -9,7 +9,7 @@ namespace RestClient.Tests
     /// Test client to https://httpbin.org for integration testing (actual calls).
     /// </summary>
     [ExcludeFromCodeCoverage]
-    public class BinClientTyped : AbstractTypedRestClient
+    public class BinClientTyped : AbstractRestClient
     {
         public BinClientTyped(HttpClient httpClient, RestServiceSettings settings, ILogger logger) : base(httpClient, settings, logger)
         {
