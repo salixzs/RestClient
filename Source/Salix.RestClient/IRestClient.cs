@@ -5,12 +5,23 @@ using System.Threading.Tasks;
 
 namespace Salix.RestClient;
 
+/// <summary>
+/// Interface to inherit your service client interfaces from to gain access to built in <see cref="HttpMethod"/> extensions.
+/// <code>
+/// public interface IMyClientImplementation : IRestClient
+/// </code>
+/// </summary>
 public interface IRestClient
 {
     /// <summary>
-    /// Last operation timing.
+    /// Last executed operation timing.
     /// </summary>
     public TimeSpan CallTime { get; }
+
+    /// <summary>
+    /// HttpClient instance created with client. Changing BaseAddress and DefaultHeaders are possible only before first actual call/use.
+    /// </summary>
+    HttpClient HttpClientInstance { get; }
 
     #region Get<HttpResponseMessage>
     /// <summary>
@@ -952,6 +963,21 @@ public interface IRestClient
     Task<T> DeleteAsync<T>(string operation, QueryParameterCollection queryParameters, object data);
 
     /// <summary>
+    /// Performs Asynchronous HTTP DELETE operation with specified operation URL (with interpolated {value} parts) and query parameters.
+    /// Returns specified typed object as operation result.
+    /// <code>
+    /// // Calls REST API at /api/operation/12/child?audit=true
+    /// _client.DeleteAsync&lt;DomainObject&gt;("/api/operation/{id}/child", new { id = 12 }, new QueryParameterCollection {{ "audit", true }});
+    /// </code>
+    /// </summary>
+    /// <exception cref="RestClientException">Thrown if request failed. Exception.Data contains details on failure.</exception>
+    /// <typeparam name="T">Type of data that will be returned.</typeparam>
+    /// <param name="operation">The operation URL.</param>
+    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
+    Task<T> DeleteAsync<T>(string operation, dynamic pathParameters, QueryParameterCollection queryParameters);
+
+    /// <summary>
     /// Performs Asynchronous HTTP DELETE operation with specified operation URL (with interpolated {value} parts).
     /// Returns specified typed object as operation result.
     /// <code>
@@ -1055,6 +1081,20 @@ public interface IRestClient
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     Task<HttpResponseMessage> DeleteAsync(string operation,
         QueryParameterCollection queryParameters, object data);
+
+    /// <summary>
+    /// Performs Asynchronous HTTP DELETE operation with specified operation URL (with interpolated {value} parts) and query parameters.
+    /// Returns specified typed object as operation result.
+    /// <code>
+    /// // Calls REST API at /api/operation/12/child?audit=true
+    /// _client.DeleteAsync("/api/operation/{id}/child", new { id = 12 }, new QueryParameterCollection {{ "audit", true }});
+    /// </code>
+    /// </summary>
+    /// <exception cref="RestClientException">Thrown if request failed. Exception.Data contains details on failure.</exception>
+    /// <param name="operation">The operation URL.</param>
+    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
+    Task<HttpResponseMessage> DeleteAsync(string operation, dynamic pathParameters, QueryParameterCollection queryParameters);
 
     /// <summary>
     /// Performs Asynchronous HTTP DELETE operation with specified operation URL (with interpolated {value} parts).

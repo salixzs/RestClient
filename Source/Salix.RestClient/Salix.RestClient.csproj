@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <!-- === General properties ===-->
   <PropertyGroup>
@@ -37,11 +37,11 @@ Provides path and query parametrization for API URLs as well as default and on-f
     <PackageReadmeFile>nuget_readme.md</PackageReadmeFile>
 
     <PackageReleaseNotes>
-Heavy breaking changes! Considerable rewrite again.
-Now provides 3 base abstract classes for each aproach - Factory, Named and Typed HttpClient instance usages.
+Heavy breaking changes! Considerable rewrite with plenty of improvements in code and documentation (see repository Wiki).
+Made sure Abstract class works in any of 3 scenarios - Factory, Named Factory and Typed client - with/without interface.
 Added method to read authentication token or apiKey from outside via overrideable method call before each HttpClient request.
 Added missing extension methods + and heavily documented all.
-Package is now using NULLABLE reference types.
+Package is now embracing NULLABLE reference types.
     </PackageReleaseNotes>
     <Version>3.0.0</Version>
     <AssemblyVersion>3.0.0.0</AssemblyVersion>

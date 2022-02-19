@@ -1,8 +1,9 @@
 # Salix.RestClient
 
-Wrapper for RESTful service (WebAPI) client, using IHttpClientFactory in ASP.NET framework. Package provides abstract base classes for any of 3 usage types - with Factory, Named client/factory and Typed client to be used to implement your own REST service HttpClient.\
+Wrapper around IHttpClientFactory HttpClient in System.Net.Http (Core 3+) to provide easier access to RESTful APIs from backend .Net code.\
+Package provides abstract base class for any of 3 usage types - with Factory, Named client/factory and Typed client to be used to implement your own REST service HttpClient.\
 Included HttpClient extensions - shortcuts to do  GET, POST, PUT, PATCH and DELETE operations with variety of parameters.\
-Operations can return raw `HttpResponseMessage` or directly deserialized typed data object. Internally it uses Json.Net (default) which can be switched to use `System.Text.Json` deserializer.
+Operations can return raw `HttpResponseMessage` or directly deserialized - typed data object. Internally it uses Json.Net (default) which can be switched to use `System.Text.Json` deserializer.
 As parameters you can supply path variables and/or query parameters in addition to data content. These are wrapped into own managing objects to simplify their usage.\
 Example:
 
@@ -14,24 +15,24 @@ can be executed as this GET extension method call, returning strongly typed `Dom
 var result = await _client.GetAsync<DomainObject>("/api/parents/{id}/children/{childId}", new { id = 12, childId = 15 }, new QueryParameterCollection {{ "skip", 0 },{ "take", 10 }})
 ```
 
-Package expects it to have concrete settings object, from witch it gathers `BaseAddress`, authentication approach, any default headers ("text/json" is added by default, if not specified implicitly).\
+Package expects it to have concrete settings object, from witch it gathers `BaseAddress`, [optionally] factory name, authentication approach, any default headers ("text/json" is added by default, if not specified implicitly).\
 Custom `RestClientException` is thrown on failures, containing all the information about request failure.\
 Built in timer will get you execution time you can read after each request for any monitoring needs.\
-Development time verbose logging will output plenty of details on internal work to logging output (Use Dubug() to see it in Visual Studio output window).
+Development time verbose logging will output plenty of details on internal work to logging output (Use Debug() to see it in Visual Studio output window).
+
 
 ## Usage
 
-Create your own API client class, deriving from either of three `AbstractFactoryRestClient` (Unnamed factory use), `AbstractNamedRestClient` (for named factory/client) or `AbstractTypedRestClient` (for typed client) class.
+> More detailed documentation is in [Wiki](https://github.com/salixzs/RestClient/wiki).
+
+Create your own API client class, deriving from `AbstractRestClient` class and use any of four constructors, depending on your approach - constructors with IHttpClientFactory for factory or named approaches or constructors with HttpClient instance for typed clients.
 
 ```csharp
-public class MyServiceClient : AbstractTypedRestClient
+public class MyServiceClient : AbstractRestClient
 {
     /// <summary>
-    /// Client to work with MyService API.
+    /// Client to work with MyService API. Here assumed typed client implementation/setup with default Json.Net serizalizer.
     /// </summary>
-    /// <param name="httpClient">The HTTP client (.Net Framework).</param>
-    /// <param name="parameters">The parameters/settings for MyService API client.</param>
-    /// <param name="logger">The logging object (ILogger in MS.Extensions.Logging).</param>
     public MyServiceClient(HttpClient httpClient, MyServiceClientSettings parameters, ILogger<MyServiceClient> logger)
         : base(httpClient, parameters, logger)
     {
@@ -59,6 +60,7 @@ new MyServiceClientSettings {
         UserName = "apiuser",
         Password = "secret"
     },
+    FactoryName = "namedClient",
     RequestHeaders = new Dictionary<string, string> { { "version", "2.0" } }
 }
 ```
@@ -66,17 +68,18 @@ new MyServiceClientSettings {
 Using MS Extensions for Dependency Injection, register them appropriately
 
 ```csharp
-services.AddHttpClient(MyServiceClient); // This registers IHttpClientFactory
+services.AddHttpClient<MyServiceClient>(); // This registers IHttpClientFactory with typed client
 services.AddSingleton(myServiceClientSettings); // instance of configuration for API client
 ```
 
-Then use client injected instance in your logic/cotroller/handler classes:
+Then use client injected instance in your logic/controller/handler classes:
 
 ```csharp
 public class BusinessLogic
 {
     private readonly MyServiceClient _api;
     
+    // ctor
     public BusinessLogic(MyServiceClient apiClient) => _api = apiClient;
     
     public async Task LogicMethod() 

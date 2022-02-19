@@ -24,7 +24,7 @@ public abstract partial class HttpClientExtender
     /// <param name="headers">Additional request header(s) to add to this request in addition to default global headers (added in client setup).</param>
     public virtual async Task<HttpResponseMessage> PatchAsync(string operation, object? data, dynamic? pathParameters,
         QueryParameterCollection? queryParameters, Dictionary<string, string>? headers)
-        => await this.SendHttpRequest<HttpResponseMessage>(HttpMethod.Put, operation: operation, data: data,
+        => await this.SendHttpRequest<HttpResponseMessage>(new HttpMethod("PATCH"), operation: operation, data: data,
             pathParameters: pathParameters, queryParameters: queryParameters, headers: headers).ConfigureAwait(false);
 
     /// <summary>
@@ -146,7 +146,7 @@ public abstract partial class HttpClientExtender
     /// <param name="headers">Additional request header(s) to add to this request in addition to default global headers (added in client setup).</param>
     public virtual async Task<T> PatchAsync<T>(string operation, object? data, dynamic? pathParameters,
         QueryParameterCollection? queryParameters, Dictionary<string, string>? headers)
-        => await this.SendHttpRequest<T>(HttpMethod.Put, operation: operation, data: data,
+        => await this.SendHttpRequest<T>(new HttpMethod("PATCH"), operation: operation, data: data,
             pathParameters: pathParameters, queryParameters: queryParameters, headers: headers).ConfigureAwait(false);
 
     /// <summary>

@@ -20,9 +20,9 @@ namespace Salix.RestClient;
 public abstract partial class HttpClientExtender
 {
     /// <summary>
-    /// Injected HttpClient instance from derived class.
+    /// HttpClient instance created with client. Changing BaseAddress and DefaultHeaders are possible only before first actual call/use.
     /// </summary>
-    protected HttpClient HttpClientInstance { get; set; } = null!;
+    public HttpClient HttpClientInstance { get; protected set; } = null!;
 
     /// <summary>
     /// Method to be overriden in inheriting class to retrieve authentication key-value pair (eg. Bearer Token)
@@ -100,19 +100,6 @@ public abstract partial class HttpClientExtender
                 request.Headers.Authorization = new AuthenticationHeaderValue(authenticationKey, authenticationValue);
             }
 
-            // Demand JSON by default, if not specified otherwise
-            if (!_settings.RequestHeaders.ContainsKey("Accept"))
-            {
-                _logger.LogTrace("Adding default Accept header for JSON.");
-                request.Headers.Add("Accept", "application/json");
-            }
-
-            foreach (var requestHeader in _settings.RequestHeaders)
-            {
-                _logger.LogTrace($"Adding request header {requestHeader.Key} to API RestClient request (from settings).");
-                request.Headers.Add(requestHeader.Key, requestHeader.Value);
-            }
-
             if (headers is { Count: > 0 })
             {
                 foreach (var hdr in headers)
@@ -131,6 +118,13 @@ public abstract partial class HttpClientExtender
                 }
             }
 
+            // Demand JSON by default, if not specified otherwise
+            if (!request.Headers.Contains("Accept") && !this.HttpClientInstance.DefaultRequestHeaders.Contains("Accept"))
+            {
+                _logger.LogTrace("Adding default Accept header for JSON.");
+                request.Headers.Add("Accept", "application/json");
+            }
+
             // CALLING THE SERVICE HERE!!!
             _logger.LogDebug($"Calling API {this.HttpClientInstance.BaseAddress} {method} {operation}");
             result = await this.HttpClientInstance.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
@@ -143,7 +137,7 @@ public abstract partial class HttpClientExtender
 
             var requestUri = result.RequestMessage.RequestUri?.AbsoluteUri;
             var errMsg =
-                "Error occurred in API/Service.\n"
+                "Error occurred in API/Service."
                 + $"Request status code: {(int)result.StatusCode} ({result.StatusCode}).\n"
                 + $"{result.RequestMessage.Method.Method} {requestUri}";
             var retException = new RestClientException(errMsg);

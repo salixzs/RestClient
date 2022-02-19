@@ -5,9 +5,17 @@ using Microsoft.Extensions.Logging;
 namespace Salix.RestClient
 {
     /// <summary>
-    /// Abstract wrapper around HttpClient instance.
+    /// Abstract wrapper around HttpClient instance to be inherited by your own client class.
+    /// <code>
+    /// public class MyApiClient : AbstractRestClient
+    /// 
+    /// // or with interface
+    /// public class MyApiClient : AbstractRestClient, IMyApiClient
+    /// // ..where
+    /// public interface IMyApiClient : IRestClient
+    /// </code>
     /// </summary>
-    public class AbstractRestClient : HttpClientExtender
+    public abstract class AbstractRestClient : HttpClientExtender
     {
         /// <summary>
         /// Creates REST client by passing in HttpClient directly (Typed clients) with default Json.Net serializer use.
@@ -22,7 +30,7 @@ namespace Salix.RestClient
         protected AbstractRestClient(HttpClient httpClient, RestServiceSettings settings, ILogger logger, IObjectSerializer? serializer) : base(settings, logger, serializer)
         {
             this.HttpClientInstance = httpClient;
-            this.HttpClientInstance.BaseAddress = new Uri(settings.BaseAddress);
+            this.SetupHttpClient(settings);
         }
 
         /// <summary>
@@ -40,7 +48,20 @@ namespace Salix.RestClient
             : base(settings, logger, serializer)
         {
             this.HttpClientInstance = string.IsNullOrEmpty(settings.FactoryName) ? httpClientFactory.CreateClient() : httpClientFactory.CreateClient(settings.FactoryName);
+            this.SetupHttpClient(settings);
+        }
+
+        /// <summary>
+        /// Sets up the 
+        /// </summary>
+        /// <param name="settings"></param>
+        private void SetupHttpClient(RestServiceSettings settings)
+        {
             this.HttpClientInstance.BaseAddress = new Uri(settings.BaseAddress);
+            foreach (var defaultHeader in settings.RequestHeaders)
+            {
+                this.HttpClientInstance.DefaultRequestHeaders.Add(defaultHeader.Key, defaultHeader.Value);
+            }
         }
     }
 }

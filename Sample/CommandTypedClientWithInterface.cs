@@ -13,7 +13,6 @@ public class CommandTypedClientWithInterface : IConsoleOperation
     public async Task<int> DoWork()
     {
         Consolix.WriteLine("Interfaced client calls to get GUIDs from https://httpbin.org", ConsoleColor.Green);
-
         var clientResult = await _client.GetUuid();
         Consolix.WriteLine("Client method call to get uuid returned: {0}", clientResult, ConsoleColor.DarkYellow, ConsoleColor.Cyan);
 

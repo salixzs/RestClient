@@ -71,8 +71,8 @@ public class Program
         // <---- Uncomment registration groups for specific type of RestClient
 
         // TYPED client: Uncomment two lines below
-        //services.AddHttpClient<TypedClient>();
-        //services.AddTransient<IConsoleOperation, CommandTypedClient>();
+        services.AddHttpClient<TypedClient>();
+        services.AddTransient<IConsoleOperation, CommandTypedClient>();
 
         // NAMED client: Uncomment 4 lines below
         //restClientSettings.FactoryName = "named";
@@ -90,9 +90,9 @@ public class Program
         //services.AddTransient<IConsoleOperation, CommandTypedClientWithInterface>();
 
         // SERIALIZER change to System.Text.Json: Uncomment three lines below
-        services.AddScoped<IObjectSerializer, SystemTextJsonObjectSerializer>();
-        services.AddHttpClient<TypedClientTextJsonSerializer>();
-        services.AddTransient<IConsoleOperation, CommandTypedClientTextJsonSerializer>();
+        //services.AddScoped<IObjectSerializer, SystemTextJsonObjectSerializer>();
+        //services.AddHttpClient<TypedClientTextJsonSerializer>();
+        //services.AddTransient<IConsoleOperation, CommandTypedClientTextJsonSerializer>();
 
         // Required registrations
         services.AddTransient<ConsoleOperationHandler>();

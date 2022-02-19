@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 namespace Salix.RestClient;
 
 /// <summary>
-/// 
+/// Interface, defining methods necessary to have serialization and deserialization of data transfer objects.
 /// </summary>
 public interface IObjectSerializer
 {
