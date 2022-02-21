@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -47,7 +47,7 @@ namespace RestClient.Tests
                 HttpMethod.Put,
                 "/api/car/{id}",
                 new RequestObject { Id = 69, Name = "Aston Martin" },
-                new { id = 12 },
+                new PathParameters("id", 12),
                 new QueryParameters { { "filter", "yes" } },
                 new Dictionary<string, string> { { "Duo", "Symmetry" } });
 

@@ -8,20 +8,20 @@ public abstract partial class HttpClientExtender
 {
     #region Delete<T>
 
-    /// <inheritdoc cref="IRestClient.DeleteAsync{T}(string,object?,dynamic?,QueryParameters?,Dictionary{string,string}?)"/>
-    public virtual async Task<T> DeleteAsync<T>(string operation, object? data, dynamic? pathParameters,
+    /// <inheritdoc cref="IRestClient.DeleteAsync{T}(string,object?,PathParameters?,QueryParameters?,Dictionary{string,string}?)"/>
+    public virtual async Task<T> DeleteAsync<T>(string operation, object? data, PathParameters? pathParameters,
         QueryParameters? queryParameters, Dictionary<string, string>? headers)
         => await this.SendHttpRequest<T>(HttpMethod.Delete, operation: operation, data: data,
             pathParameters: pathParameters, queryParameters: queryParameters, headers: headers).ConfigureAwait(false);
 
-    /// <inheritdoc cref="IRestClient.DeleteAsync{T}(string,dynamic,QueryParameters,object)"/>
-    public virtual async Task<T> DeleteAsync<T>(string operation, dynamic pathParameters,
+    /// <inheritdoc cref="IRestClient.DeleteAsync{T}(string,PathParameters,QueryParameters,object)"/>
+    public virtual async Task<T> DeleteAsync<T>(string operation, PathParameters pathParameters,
         QueryParameters queryParameters, object data)
         => await this.DeleteAsync<T>(operation: operation, data: data, pathParameters: pathParameters,
             queryParameters: queryParameters, headers: null).ConfigureAwait(false);
 
-    /// <inheritdoc cref="IRestClient.DeleteAsync{T}(string,dynamic,object)"/>
-    public virtual async Task<T> DeleteAsync<T>(string operation, dynamic pathParameters, object data)
+    /// <inheritdoc cref="IRestClient.DeleteAsync{T}(string,PathParameters,object)"/>
+    public virtual async Task<T> DeleteAsync<T>(string operation, PathParameters pathParameters, object data)
         => await this.DeleteAsync<T>(operation: operation, data: data, pathParameters: pathParameters,
             queryParameters: null, headers: null).ConfigureAwait(false);
 
@@ -30,14 +30,14 @@ public abstract partial class HttpClientExtender
         => await this.DeleteAsync<T>(operation: operation, data: data, pathParameters: null,
             queryParameters: queryParameters, headers: null).ConfigureAwait(false);
 
-    /// <inheritdoc cref="IRestClient.DeleteAsync{T}(string,dynamic,QueryParameters)"/>
-    public virtual async Task<T> DeleteAsync<T>(string operation, dynamic pathParameters,
+    /// <inheritdoc cref="IRestClient.DeleteAsync{T}(string,PathParameters,QueryParameters)"/>
+    public virtual async Task<T> DeleteAsync<T>(string operation, PathParameters pathParameters,
         QueryParameters queryParameters)
         => await this.DeleteAsync<T>(operation: operation, data: null, pathParameters: pathParameters,
             queryParameters: queryParameters, headers: null).ConfigureAwait(false);
 
-    /// <inheritdoc cref="IRestClient.DeleteAsync{T}(string,dynamic)"/>
-    public virtual async Task<T> DeleteAsync<T>(string operation, dynamic pathParameters)
+    /// <inheritdoc cref="IRestClient.DeleteAsync{T}(string,PathParameters)"/>
+    public virtual async Task<T> DeleteAsync<T>(string operation, PathParameters pathParameters)
         => await this.DeleteAsync<T>(operation: operation, data: null, pathParameters: pathParameters,
             queryParameters: null, headers: null).ConfigureAwait(false);
 
@@ -56,20 +56,20 @@ public abstract partial class HttpClientExtender
 
     #region Delete<HttpResponseMessage>
 
-    /// <inheritdoc cref="IRestClient.DeleteAsync(string,object?,dynamic?,QueryParameters?,Dictionary{string,string}?)"/>
-    public virtual async Task<HttpResponseMessage> DeleteAsync(string operation, object? data, dynamic? pathParameters,
+    /// <inheritdoc cref="IRestClient.DeleteAsync(string,object?,PathParameters?,QueryParameters?,Dictionary{string,string}?)"/>
+    public virtual async Task<HttpResponseMessage> DeleteAsync(string operation, object? data, PathParameters? pathParameters,
         QueryParameters? queryParameters, Dictionary<string, string>? headers)
         => await this.SendHttpRequest<HttpResponseMessage>(HttpMethod.Delete, operation: operation, data: data,
             pathParameters: pathParameters, queryParameters: queryParameters, headers: headers).ConfigureAwait(false);
 
-    /// <inheritdoc cref="IRestClient.DeleteAsync(string,dynamic,QueryParameters,object)"/>
-    public virtual async Task<HttpResponseMessage> DeleteAsync(string operation, dynamic pathParameters,
+    /// <inheritdoc cref="IRestClient.DeleteAsync(string,PathParameters,QueryParameters,object)"/>
+    public virtual async Task<HttpResponseMessage> DeleteAsync(string operation, PathParameters pathParameters,
         QueryParameters queryParameters, object data)
         => await this.DeleteAsync<HttpResponseMessage>(operation: operation, data: data, pathParameters: pathParameters,
             queryParameters: queryParameters, headers: null).ConfigureAwait(false);
 
-    /// <inheritdoc cref="IRestClient.DeleteAsync(string,dynamic,object)"/>
-    public virtual async Task<HttpResponseMessage> DeleteAsync(string operation, dynamic pathParameters, object data)
+    /// <inheritdoc cref="IRestClient.DeleteAsync(string,PathParameters,object)"/>
+    public virtual async Task<HttpResponseMessage> DeleteAsync(string operation, PathParameters pathParameters, object data)
         => await this.DeleteAsync<HttpResponseMessage>(operation: operation, data: data, pathParameters: pathParameters,
             queryParameters: null, headers: null).ConfigureAwait(false);
 
@@ -79,13 +79,13 @@ public abstract partial class HttpClientExtender
         => await this.DeleteAsync<HttpResponseMessage>(operation: operation, data: data, pathParameters: null,
             queryParameters: queryParameters, headers: null).ConfigureAwait(false);
 
-    /// <inheritdoc cref="IRestClient.DeleteAsync(string,dynamic,QueryParameters)"/>
-    public virtual async Task<HttpResponseMessage> DeleteAsync(string operation, dynamic pathParameters, QueryParameters queryParameters)
+    /// <inheritdoc cref="IRestClient.DeleteAsync(string,PathParameters,QueryParameters)"/>
+    public virtual async Task<HttpResponseMessage> DeleteAsync(string operation, PathParameters pathParameters, QueryParameters queryParameters)
         => await this.DeleteAsync<HttpResponseMessage>(operation: operation, data: null, pathParameters: pathParameters,
             queryParameters: queryParameters, headers: null).ConfigureAwait(false);
 
-    /// <inheritdoc cref="IRestClient.DeleteAsync(string,dynamic)"/>
-    public virtual async Task<HttpResponseMessage> DeleteAsync(string operation, dynamic pathParameters)
+    /// <inheritdoc cref="IRestClient.DeleteAsync(string,PathParameters)"/>
+    public virtual async Task<HttpResponseMessage> DeleteAsync(string operation, PathParameters pathParameters)
         => await this.DeleteAsync<HttpResponseMessage>(operation: operation, data: null, pathParameters: pathParameters,
             queryParameters: null, headers: null).ConfigureAwait(false);
 

@@ -50,7 +50,7 @@ namespace RestClient.Tests
         public async Task Get_QueryPath()
         {
             _api = new BinClientTyped(_httpClient, new RestServiceSettings { BaseAddress = BaseAddress }, _logger);
-            var result = await _api.GetAsync<MethodResponse>("{method}", new { method = "get" });
+            var result = await _api.GetAsync<MethodResponse>("{method}", new PathParameters("method","get"));
             result.Should().NotBeNull();
             result.url.Should().Be($"{BaseAddress}/get");
         }
@@ -59,7 +59,7 @@ namespace RestClient.Tests
         public async Task Get_QueryPathArgs()
         {
             _api = new BinClientTyped(_httpClient, new RestServiceSettings { BaseAddress = BaseAddress }, _logger);
-            var result = await _api.GetAsync<MethodResponse>("{method}", new { method = "get" }, new QueryParameters { { "skip", 5 }, { "take", 25 } });
+            var result = await _api.GetAsync<MethodResponse>("{method}", new PathParameters("method","get"), new QueryParameters { { "skip", 5 }, { "take", 25 } });
             result.Should().NotBeNull();
             result.url.Should().Be($"{BaseAddress}/get?skip=5&take=25");
         }
@@ -80,7 +80,7 @@ namespace RestClient.Tests
         public async Task Get_QueryPathArgsData()
         {
             _api = new BinClientTyped(_httpClient, new RestServiceSettings { BaseAddress = BaseAddress }, _logger);
-            var result = await _api.GetAsync<MethodResponse>("{method}", new { method = "anything" }, new QueryParameters { { "skip", 5 }, { "take", 25 } }, new RequestObject { Id = 12, Name = "Test" }, new Dictionary<string, string> { { "Numero", "Uno" } });
+            var result = await _api.GetAsync<MethodResponse>("{method}", new PathParameters("method", "anything"), new QueryParameters { { "skip", 5 }, { "take", 25 } }, new RequestObject { Id = 12, Name = "Test" }, new Dictionary<string, string> { { "Numero", "Uno" } });
             result.Should().NotBeNull();
             result.url.Should().Be($"{BaseAddress}/anything?skip=5&take=25");
             result.json.Should().NotBeNull();
@@ -92,7 +92,7 @@ namespace RestClient.Tests
         public async Task Get_PathData()
         {
             _api = new BinClientTyped(_httpClient, new RestServiceSettings { BaseAddress = BaseAddress }, _logger);
-            var result = await _api.GetAsync<MethodResponse>("{method}", new { method = "anything" }, new RequestObject { Id = 12, Name = "Test" });
+            var result = await _api.GetAsync<MethodResponse>("{method}", new PathParameters("method", "anything"), new RequestObject { Id = 12, Name = "Test" });
             result.Should().NotBeNull();
             result.url.Should().Be($"{BaseAddress}/anything");
             result.json.Should().NotBeNull();
@@ -116,7 +116,7 @@ namespace RestClient.Tests
         public async Task Get_QueryHeaders()
         {
             _api = new BinClientTyped(_httpClient, new RestServiceSettings { BaseAddress = BaseAddress }, _logger);
-            var result = await _api.GetAsync<MethodResponse>("{method}", new { method = "get" }, null, null, new Dictionary<string, string> { { "Numero", "Uno" } });
+            var result = await _api.GetAsync<MethodResponse>("{method}", new PathParameters("method", "get"), null, null, new Dictionary<string, string> { { "Numero", "Uno" } });
             result.Should().NotBeNull();
             result.url.Should().Be($"{BaseAddress}/get");
             result.headers.Should().HaveCountGreaterOrEqualTo(1);

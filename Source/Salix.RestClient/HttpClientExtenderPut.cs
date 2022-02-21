@@ -8,21 +8,21 @@ public abstract partial class HttpClientExtender
 {
     #region Put<HttpResponseMessage>
 
-    /// <inheritdoc cref="IRestClient.PutAsync(string,object?,dynamic?,QueryParameters?,Dictionary{string,string}?)"/>
-    public virtual async Task<HttpResponseMessage> PutAsync(string operation, object? data, dynamic? pathParameters,
+    /// <inheritdoc cref="IRestClient.PutAsync(string,object?,PathParameters?,QueryParameters?,Dictionary{string,string}?)"/>
+    public virtual async Task<HttpResponseMessage> PutAsync(string operation, object? data, PathParameters? pathParameters,
         QueryParameters? queryParameters, Dictionary<string, string>? headers)
         => await this
             .SendHttpRequest<HttpResponseMessage>(HttpMethod.Put, operation, data, pathParameters, queryParameters,
                 headers).ConfigureAwait(false);
 
-    /// <inheritdoc cref="IRestClient.PutAsync(string,object,dynamic,QueryParameters)"/>
-    public virtual async Task<HttpResponseMessage> PutAsync(string operation, object data, dynamic pathParameters,
+    /// <inheritdoc cref="IRestClient.PutAsync(string,object,PathParameters,QueryParameters)"/>
+    public virtual async Task<HttpResponseMessage> PutAsync(string operation, object data, PathParameters pathParameters,
         QueryParameters queryParameters)
         => await this.PutAsync<HttpResponseMessage>(operation: operation, data: data, pathParameters: pathParameters,
             queryParameters: queryParameters, headers: null).ConfigureAwait(false);
 
-    /// <inheritdoc cref="IRestClient.PutAsync(string,object,dynamic)"/>
-    public virtual async Task<HttpResponseMessage> PutAsync(string operation, object data, dynamic pathParameters)
+    /// <inheritdoc cref="IRestClient.PutAsync(string,object,PathParameters)"/>
+    public virtual async Task<HttpResponseMessage> PutAsync(string operation, object data, PathParameters pathParameters)
         => await this.PutAsync<HttpResponseMessage>(operation: operation, data: data, pathParameters: pathParameters,
             queryParameters: null, headers: null).ConfigureAwait(false);
 
@@ -51,20 +51,20 @@ public abstract partial class HttpClientExtender
 
     #region Put<T>
 
-    /// <inheritdoc cref="IRestClient.PutAsync{T}(string,object?,dynamic?,QueryParameters?,Dictionary{string,string}?)"/>
-    public virtual async Task<T> PutAsync<T>(string operation, object? data, dynamic? pathParameters,
+    /// <inheritdoc cref="IRestClient.PutAsync{T}(string,object?,PathParameters?,QueryParameters?,Dictionary{string,string}?)"/>
+    public virtual async Task<T> PutAsync<T>(string operation, object? data, PathParameters? pathParameters,
         QueryParameters? queryParameters, Dictionary<string, string>? headers)
         => await this.SendHttpRequest<T>(HttpMethod.Put, operation, data, pathParameters, queryParameters, headers)
             .ConfigureAwait(false);
 
-    /// <inheritdoc cref="IRestClient.PutAsync{T}(string,object,dynamic,QueryParameters)"/>
-    public virtual async Task<T> PutAsync<T>(string operation, object data, dynamic pathParameters,
+    /// <inheritdoc cref="IRestClient.PutAsync{T}(string,object,PathParameters,QueryParameters)"/>
+    public virtual async Task<T> PutAsync<T>(string operation, object data, PathParameters pathParameters,
         QueryParameters queryParameters)
         => await this.PutAsync<T>(operation: operation, data: data, pathParameters: pathParameters,
             queryParameters: queryParameters, headers: null).ConfigureAwait(false);
 
-    /// <inheritdoc cref="IRestClient.PutAsync{T}(string,object,dynamic)"/>
-    public virtual async Task<T> PutAsync<T>(string operation, object data, dynamic pathParameters)
+    /// <inheritdoc cref="IRestClient.PutAsync{T}(string,object,PathParameters)"/>
+    public virtual async Task<T> PutAsync<T>(string operation, object data, PathParameters pathParameters)
         => await this.PutAsync<T>(operation: operation, data: data, pathParameters: pathParameters,
             queryParameters: null, headers: null).ConfigureAwait(false);
 

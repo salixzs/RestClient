@@ -45,7 +45,7 @@ namespace RestClient.Tests
         public async Task Auth_BasicCorrect_Succeeds()
         {
             _api = new BinClientTyped(_httpClient, new RestServiceSettings { BaseAddress = "https://httpbin.org", Authentication = new RestServiceAuthentication { AuthenticationType = ApiAuthenticationType.Basic, UserName = "me", Password = "secret" } }, _logger);
-            var result = await _api.GetAsync("basic-auth/{user}/{password}", new { user = "me", password = "secret" });
+            var result = await _api.GetAsync("basic-auth/{user}/{password}", new PathParameters("user", "me", "password", "secret"));
             result.Should().NotBeNull();
             result.StatusCode.Should().Be(HttpStatusCode.OK);
         }
@@ -56,7 +56,7 @@ namespace RestClient.Tests
             _api = new BinClientTyped(_httpClient, new RestServiceSettings { BaseAddress = "https://httpbin.org", Authentication = new RestServiceAuthentication { AuthenticationType = ApiAuthenticationType.Basic, UserName = "me", Password = "secret" } }, _logger);
             try
             {
-                var result = await _api.GetAsync("basic-auth/{user}/{password}", new { user = "notme", password = "hola" });
+                var result = await _api.GetAsync("basic-auth/{user}/{password}", new PathParameters("user", "notme", "password", "hola"));
                 result.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
             }
             catch (RestClientException ex)

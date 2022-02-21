@@ -13,16 +13,16 @@ public abstract partial class HttpClientExtender
 {
 #pragma warning disable CA1848, CA2254 // Logger delegates and templates
 
-    /// <inheritdoc cref="IRestClient.GetRequestMessage(HttpMethod,string,object,dynamic,QueryParameters,Dictionary{string,string})"/>
+    /// <inheritdoc cref="IRestClient.GetRequestMessage(HttpMethod,string,object,PathParameters,QueryParameters,Dictionary{string,string})"/>
     public async Task<HttpRequestMessage> GetRequestMessage(
         HttpMethod method,
         string operation,
         object? data,
-        dynamic? pathParameters,
+        PathParameters? pathParameters,
         QueryParameters? queryParameters,
         Dictionary<string, string>? headers)
     {
-        HttpRequestMessage request = this.CreateRequest(method, operation, pathParameters, queryParameters);
+        var request = this.CreateRequest(method, operation, pathParameters, queryParameters);
         if (data != null)
         {
             _logger.LogTrace("Adding payload data to API RestClient request.");
@@ -102,7 +102,7 @@ public abstract partial class HttpClientExtender
     /// <returns>
     /// A formed API Request to execute through HttpClient.
     /// </returns>
-    protected virtual HttpRequestMessage CreateRequest(HttpMethod method, string operation, dynamic pathParameters, QueryParameters queryParameters)
+    protected virtual HttpRequestMessage CreateRequest(HttpMethod method, string operation, PathParameters? pathParameters, QueryParameters? queryParameters)
         => new(method, this.ComposeFullOperationUrl(operation, pathParameters, queryParameters));
 
     /// <summary>
@@ -111,15 +111,15 @@ public abstract partial class HttpClientExtender
     /// <param name="operation">The operation of API (like "api/data").</param>
     /// <param name="pathParameters">The path parameters.</param>
     /// <param name="queryParameters">The query parameters.</param>
-    private string ComposeFullOperationUrl(string operation, dynamic? pathParameters, QueryParameters? queryParameters)
+    private string ComposeFullOperationUrl(string operation, PathParameters? pathParameters, QueryParameters? queryParameters)
     {
         // Replace all path parameters
         if (pathParameters != null)
         {
-            foreach (PropertyInfo property in pathParameters.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
+            foreach (var (pathParameterName, pathParameterValue) in pathParameters.GetAll())
             {
-                _logger.LogTrace($"API URL: Replacing {property.Name} with value {property.GetValue(pathParameters, null).ToString()}");
-                operation = operation.Replace($"{{{property.Name}}}", property.GetValue(pathParameters, null).ToString());
+                _logger.LogTrace($"API URL: Replacing {pathParameterName} with value {pathParameterValue}");
+                operation = operation.Replace($"{{{pathParameterName}}}", pathParameterValue);
             }
         }
 
@@ -135,12 +135,12 @@ public abstract partial class HttpClientExtender
 #pragma warning restore CA2254, CA1848 // Logger delegates and templates
 
     #region overrides
-    /// <inheritdoc cref="IRestClient.GetRequestMessage(HttpMethod,string,object,dynamic,QueryParameters)"/>
+    /// <inheritdoc cref="IRestClient.GetRequestMessage(HttpMethod,string,object,PathParameters,QueryParameters)"/>
     public async Task<HttpRequestMessage> GetRequestMessage(
         HttpMethod method,
         string operation,
         object data,
-        dynamic pathParameters,
+        PathParameters pathParameters,
         QueryParameters queryParameters) =>
         await this.GetRequestMessage(
             method,
@@ -150,12 +150,12 @@ public abstract partial class HttpClientExtender
             queryParameters: queryParameters,
             headers: null);
 
-    /// <inheritdoc cref="IRestClient.GetRequestMessage(HttpMethod,string,object,dynamic)"/>
+    /// <inheritdoc cref="IRestClient.GetRequestMessage(HttpMethod,string,object,PathParameters)"/>
     public async Task<HttpRequestMessage> GetRequestMessage(
         HttpMethod method,
         string operation,
         object data,
-        dynamic pathParameters) =>
+        PathParameters pathParameters) =>
         await this.GetRequestMessage(
             method,
             operation: operation,
@@ -191,12 +191,12 @@ public abstract partial class HttpClientExtender
             queryParameters: null,
             headers: null);
 
-    /// <inheritdoc cref="IRestClient.GetRequestMessage(HttpMethod,string,QueryParameters,dynamic)"/>
+    /// <inheritdoc cref="IRestClient.GetRequestMessage(HttpMethod,string,QueryParameters,PathParameters)"/>
     public async Task<HttpRequestMessage> GetRequestMessage(
         HttpMethod method,
         string operation,
         QueryParameters queryParameters,
-        dynamic pathParameters) =>
+        PathParameters pathParameters) =>
         await this.GetRequestMessage(
             method,
             operation: operation,

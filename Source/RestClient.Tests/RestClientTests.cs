@@ -89,7 +89,7 @@ namespace RestClient.Tests
                 _factoryMock.Object,
                 new RestServiceSettings { BaseAddress = "http://mypc/webapi/" },
                 _logger);
-            await testable.GetAsync("base/{id}/sub/{key}", new { id = 777, key = "abc" });
+            await testable.GetAsync("base/{id}/sub/{key}", new PathParameters("id", 777, "key", "abc"));
             _requestMessage.RequestUri.AbsolutePath.Should().Be("/webapi/base/777/sub/abc");
         }
 
@@ -113,7 +113,7 @@ namespace RestClient.Tests
                 _logger);
             await testable.GetAsync<DateTime>(
                 "person/{id}",
-                new { id = 102332 },
+                new PathParameters("id", 102332),
                 new QueryParameters {
                     new QueryParameter("filter", "active"),
                     new QueryParameter("page", 2) });
@@ -260,7 +260,7 @@ namespace RestClient.Tests
 
             var result = testable.PostAsync<long>(
                     "test/{id}",
-                    data, new { id = "1" },
+                    data, new PathParameters("id", 1),
                     new QueryParameters
                     {
                         new QueryParameter("nocache", "true")

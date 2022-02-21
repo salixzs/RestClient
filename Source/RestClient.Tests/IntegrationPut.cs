@@ -59,7 +59,7 @@ namespace RestClient.Tests
         public async Task Put_PathData()
         {
             _api = new BinClientTyped(_httpClient, new RestServiceSettings { BaseAddress = BaseAddress }, _logger);
-            var result = await _api.PutAsync<MethodResponse>("{method}", new RequestObject { Id = 12, Name = "Test" }, new { method = "put" });
+            var result = await _api.PutAsync<MethodResponse>("{method}", new RequestObject { Id = 12, Name = "Test" }, new PathParameters("method", "put"));
             result.Should().NotBeNull();
             result.url.Should().Be($"{BaseAddress}/put");
             AssertData(result);
@@ -69,7 +69,7 @@ namespace RestClient.Tests
         public async Task Put_PathArgsData()
         {
             _api = new BinClientTyped(_httpClient, new RestServiceSettings { BaseAddress = BaseAddress }, _logger);
-            var result = await _api.PutAsync<MethodResponse>("{method}", new RequestObject { Id = 12, Name = "Test" }, new { method = "put" }, new QueryParameters { { "audit", true } });
+            var result = await _api.PutAsync<MethodResponse>("{method}", new RequestObject { Id = 12, Name = "Test" }, new PathParameters("method", "put"), new QueryParameters { { "audit", true } });
             result.Should().NotBeNull();
             result.url.Should().Be($"{BaseAddress}/put?audit=True");
             AssertData(result);

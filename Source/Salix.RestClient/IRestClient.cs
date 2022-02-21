@@ -56,12 +56,11 @@ public interface IRestClient
     /// </summary>
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
     /// <param name="headers">Additional request header(s) to add to this request (in addition to default global headers, which are defined in settings).</param>
-    Task<HttpResponseMessage> GetAsync(string operation, dynamic? pathParameters,
-        QueryParameters? queryParameters, object? data, Dictionary<string, string>? headers);
+    Task<HttpResponseMessage> GetAsync(string operation, PathParameters? pathParameters, QueryParameters? queryParameters, object? data, Dictionary<string, string>? headers);
 
     /// <summary>
     /// Performs Asynchronous HTTP GET operation with specified operation URL (with interpolated {value} parts), optional query parameters and request content data.
@@ -73,26 +72,10 @@ public interface IRestClient
     /// </summary>
     /// <exception cref="RestClientException">Thrown if request failed. Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/>.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data to be sent as request payload.</param>
-    Task<HttpResponseMessage> GetAsync(string operation, dynamic pathParameters,
-        QueryParameters queryParameters, object data);
-
-    /// <summary>
-    /// Performs Asynchronous HTTP GET operation with specified operation URL (with interpolated {value} parts) and optional query parameters.
-    /// Returns Raw HttpResponseMessage. Can be used with XML SOAP services to be able to retrieve non-JSON data (defaults to JSON).
-    /// <code>
-    /// // Calls REST API at /api/operation/12?page=1
-    /// _client.GetAsync("/api/operation/{id}", new { id = 12 }, new QueryParameters {{ "page", 1 }});
-    /// </code>
-    /// </summary>
-    /// <exception cref="RestClientException">Thrown if request failed. Exception.Data contains details on failure.</exception>
-    /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/>.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
-    /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<HttpResponseMessage> GetAsync(string operation, dynamic pathParameters,
-        QueryParameters queryParameters);
+    Task<HttpResponseMessage> GetAsync(string operation, PathParameters pathParameters, QueryParameters queryParameters, object data);
 
     /// <summary>
     /// Performs Asynchronous HTTP GET operation with specified operation URL (with interpolated {value} parts) and request content data.
@@ -104,9 +87,9 @@ public interface IRestClient
     /// </summary>
     /// <exception cref="RestClientException">Thrown if request failed. Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/>.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
     /// <param name="data">The data to be sent as request payload.</param>
-    Task<HttpResponseMessage> GetAsync(string operation, dynamic pathParameters, object data);
+    Task<HttpResponseMessage> GetAsync(string operation, PathParameters pathParameters, object data);
 
     /// <summary>
     /// Performs Asynchronous HTTP GET operation with specified operation URL, query parameters and request content data.
@@ -121,6 +104,33 @@ public interface IRestClient
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data to be sent as request payload.</param>
     Task<HttpResponseMessage> GetAsync(string operation, QueryParameters queryParameters, object data);
+
+    /// <summary>
+    /// Performs Asynchronous HTTP GET operation with specified operation URL and request content data.
+    /// Returns Raw HttpResponseMessage. Can be used with XML SOAP services to be able to retrieve non-JSON data (defaults to JSON).
+    /// <code>
+    /// // Calls REST API at /api/operation (+ content data)
+    /// _client.GetAsync("/api/operation", requestObject);
+    /// </code>
+    /// </summary>
+    /// <exception cref="RestClientException">Thrown if request failed. Exception.Data contains details on failure.</exception>
+    /// <param name="operation">The operation URL.</param>
+    /// <param name="data">The data to be sent as request payload.</param>
+    Task<HttpResponseMessage> GetAsync(string operation, object data);
+
+    /// <summary>
+    /// Performs Asynchronous HTTP GET operation with specified operation URL (with interpolated {value} parts) and optional query parameters.
+    /// Returns Raw HttpResponseMessage. Can be used with XML SOAP services to be able to retrieve non-JSON data (defaults to JSON).
+    /// <code>
+    /// // Calls REST API at /api/operation/12?page=1
+    /// _client.GetAsync("/api/operation/{id}", new { id = 12 }, new QueryParameters {{ "page", 1 }});
+    /// </code>
+    /// </summary>
+    /// <exception cref="RestClientException">Thrown if request failed. Exception.Data contains details on failure.</exception>
+    /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/>.</param>
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
+    Task<HttpResponseMessage> GetAsync(string operation, PathParameters pathParameters, QueryParameters queryParameters);
 
     /// <summary>
     /// Performs Asynchronous HTTP GET operation with specified operation URL and query parameters.
@@ -145,8 +155,8 @@ public interface IRestClient
     /// </summary>
     /// <exception cref="RestClientException">Thrown if request failed. Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/>.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
-    Task<HttpResponseMessage> GetAsync(string operation, dynamic pathParameters);
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    Task<HttpResponseMessage> GetAsync(string operation, PathParameters pathParameters);
 
     /// <summary>
     /// Performs Asynchronous HTTP GET operation with specified operation URL.
@@ -173,12 +183,11 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request failed. Exception.Data contains details on failure.</exception>
     /// <typeparam name="T">Type of data to retrieve.</typeparam>
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/>.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data to be sent as request payload.</param>
     /// <param name="headers">Additional request header(s) to add to this request in addition to default global headers (added in client setup).</param>
-    Task<T> GetAsync<T>(string operation, dynamic? pathParameters,
-        QueryParameters? queryParameters, object? data, Dictionary<string, string>? headers);
+    Task<T> GetAsync<T>(string operation, PathParameters? pathParameters, QueryParameters? queryParameters, object? data, Dictionary<string, string>? headers);
 
     /// <summary>
     /// Performs Asynchronous HTTP GET operation with specified operation URL (with interpolated {value} parts), query parameters and content data.
@@ -191,27 +200,10 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request failed. Exception.Data contains details on failure.</exception>
     /// <typeparam name="T">Type of data to retrieve.</typeparam>
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/>.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data to be sent as request payload.</param>
-    Task<T> GetAsync<T>(string operation, dynamic pathParameters,
-        QueryParameters queryParameters, object data);
-
-    /// <summary>
-    /// Performs Asynchronous HTTP GET operation with specified operation URL (with interpolated {value} parts) and query parameters.
-    /// Usually used to perform typed data retrievals from API services.
-    /// <code>
-    /// // Calls REST API at /api/operation/12?page=1
-    /// _client.GetAsync&lt;DomainObject&gt;("/api/operation/{id}", new { id = 12 }, new QueryParameters {{ "page", 1 }});
-    /// </code>
-    /// </summary>
-    /// <exception cref="RestClientException">Thrown if request failed. Exception.Data contains details on failure.</exception>
-    /// <typeparam name="T">Type of data to retrieve.</typeparam>
-    /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/>.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
-    /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<T> GetAsync<T>(string operation, dynamic pathParameters,
-        QueryParameters queryParameters);
+    Task<T> GetAsync<T>(string operation, PathParameters pathParameters, QueryParameters queryParameters, object data);
 
     /// <summary>
     /// Performs Asynchronous HTTP GET operation with specified operation URL, query parameters and content data.
@@ -239,9 +231,38 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request failed. Exception.Data contains details on failure.</exception>
     /// <typeparam name="T">Type of data to retrieve.</typeparam>
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/>.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
     /// <param name="data">The data to be sent as request payload.</param>
-    Task<T> GetAsync<T>(string operation, dynamic pathParameters, object data);
+    Task<T> GetAsync<T>(string operation, PathParameters pathParameters, object data);
+
+    /// <summary>
+    /// Performs Asynchronous HTTP GET operation with specified operation URL and content data.
+    /// Usually used to perform typed data retrievals from API services.
+    /// <code>
+    /// // Calls REST API at /api/operation (+ content data)
+    /// _client.GetAsync&lt;DomainObject&gt;("/api/operation", requestObject);
+    /// </code>
+    /// </summary>
+    /// <exception cref="RestClientException">Thrown if request failed. Exception.Data contains details on failure.</exception>
+    /// <typeparam name="T">Type of data to retrieve.</typeparam>
+    /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/>.</param>
+    /// <param name="data">The data to be sent as request payload.</param>
+    Task<T> GetAsync<T>(string operation, object data);
+
+    /// <summary>
+    /// Performs Asynchronous HTTP GET operation with specified operation URL (with interpolated {value} parts) and query parameters.
+    /// Usually used to perform typed data retrievals from API services.
+    /// <code>
+    /// // Calls REST API at /api/operation/12?page=1
+    /// _client.GetAsync&lt;DomainObject&gt;("/api/operation/{id}", new { id = 12 }, new QueryParameters {{ "page", 1 }});
+    /// </code>
+    /// </summary>
+    /// <exception cref="RestClientException">Thrown if request failed. Exception.Data contains details on failure.</exception>
+    /// <typeparam name="T">Type of data to retrieve.</typeparam>
+    /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/>.</param>
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
+    Task<T> GetAsync<T>(string operation, PathParameters pathParameters, QueryParameters queryParameters);
 
     /// <summary>
     /// Performs Asynchronous HTTP GET operation with specified operation URL (with interpolated {value} parts).
@@ -254,8 +275,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request failed. Exception.Data contains details on failure.</exception>
     /// <typeparam name="T">Type of data to retrieve.</typeparam>
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/>.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
-    Task<T> GetAsync<T>(string operation, dynamic pathParameters);
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    Task<T> GetAsync<T>(string operation, PathParameters pathParameters);
 
     /// <summary>
     /// Performs Asynchronous HTTP GET operation with specified operation URL (with interpolated {value} parts) and query parameters.
@@ -296,10 +317,10 @@ public interface IRestClient
     /// </summary>
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/>.</param>
     /// <param name="data">Data object that should be sent to server.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="headers">Additional request header(s) to add to this request in addition to default global headers (added in client setup).</param>
-    Task<HttpResponseMessage> PostAsync(string operation, object? data, dynamic? pathParameters,
+    Task<HttpResponseMessage> PostAsync(string operation, object? data, PathParameters? pathParameters,
         QueryParameters? queryParameters, Dictionary<string, string>? headers);
 
     /// <summary>
@@ -312,9 +333,9 @@ public interface IRestClient
     /// </summary>
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/>.</param>
     /// <param name="data">Data object that should be sent to server.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<HttpResponseMessage> PostAsync(string operation, object data, dynamic pathParameters,
+    Task<HttpResponseMessage> PostAsync(string operation, object data, PathParameters pathParameters,
         QueryParameters queryParameters);
 
     /// <summary>
@@ -327,8 +348,8 @@ public interface IRestClient
     /// </summary>
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/>.</param>
     /// <param name="data">Data object that should be sent to server.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
-    Task<HttpResponseMessage> PostAsync(string operation, object data, dynamic pathParameters);
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    Task<HttpResponseMessage> PostAsync(string operation, object data, PathParameters pathParameters);
 
     /// <summary>
     /// Performs Asynchronous HTTP POST operation with specified operation URL, query parameters and request content data.
@@ -393,10 +414,10 @@ public interface IRestClient
     /// <typeparam name="T">Type of data that will be retrieved.</typeparam>
     /// <param name="operation">The operation URL.</param>
     /// <param name="data">Data object that should be sent to server.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="headers">Additional request header(s) to add to this request in addition to default global headers (added in client setup).</param>
-    Task<T> PostAsync<T>(string operation, object? data, dynamic? pathParameters,
+    Task<T> PostAsync<T>(string operation, object? data, PathParameters? pathParameters,
         QueryParameters? queryParameters, Dictionary<string, string>? headers);
 
     /// <summary>
@@ -411,9 +432,9 @@ public interface IRestClient
     /// <typeparam name="T">Type of data that will be retrieved.</typeparam>
     /// <param name="operation">The operation URL.</param>
     /// <param name="data">Data object that should be sent to server.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<T> PostAsync<T>(string operation, object data, dynamic pathParameters,
+    Task<T> PostAsync<T>(string operation, object data, PathParameters pathParameters,
         QueryParameters queryParameters);
 
     /// <summary>
@@ -443,8 +464,8 @@ public interface IRestClient
     /// <typeparam name="T">Type of data that will be retrieved.</typeparam>
     /// <param name="operation">The operation URL.</param>
     /// <param name="data">Data object that should be sent to server.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
-    Task<T> PostAsync<T>(string operation, object data, dynamic pathParameters);
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    Task<T> PostAsync<T>(string operation, object data, PathParameters pathParameters);
 
     /// <summary>
     /// Performs Asynchronous HTTP POST operation with specified operation URL and query parameters without content data. This is non-standard POST call.
@@ -500,10 +521,10 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request failed. Exception.Data contains details on failure.</exception>
     /// <param name="operation">The operation URL.</param>
     /// <param name="data">Data object that should be sent to server.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="headers">Additional request header(s) to add to this request in addition to default global headers (added in client setup).</param>
-    Task<HttpResponseMessage> PatchAsync(string operation, object? data, dynamic? pathParameters,
+    Task<HttpResponseMessage> PatchAsync(string operation, object? data, PathParameters? pathParameters,
         QueryParameters? queryParameters, Dictionary<string, string>? headers);
 
     /// <summary>
@@ -517,9 +538,9 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request failed. Exception.Data contains details on failure.</exception>
     /// <param name="operation">The operation URL.</param>
     /// <param name="data">Data object that should be sent to server.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<HttpResponseMessage> PatchAsync(string operation, object data, dynamic pathParameters,
+    Task<HttpResponseMessage> PatchAsync(string operation, object data, PathParameters pathParameters,
         QueryParameters queryParameters);
 
     /// <summary>
@@ -533,8 +554,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request failed. Exception.Data contains details on failure.</exception>
     /// <param name="operation">The operation URL.</param>
     /// <param name="data">Data object that should be sent to server.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
-    Task<HttpResponseMessage> PatchAsync(string operation, object data, dynamic pathParameters);
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    Task<HttpResponseMessage> PatchAsync(string operation, object data, PathParameters pathParameters);
 
     /// <summary>
     /// Performs Asynchronous HTTP PATCH operation with specified operation URL (with interpolated {value} parts), query parameters and request content data.
@@ -606,10 +627,10 @@ public interface IRestClient
     /// <typeparam name="T">Type of data that will be returned.</typeparam>
     /// <param name="operation">The operation URL.</param>
     /// <param name="data">Data object that should be sent to server.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="headers">Additional request header(s) to add to this request in addition to default global headers (added in client setup).</param>
-    Task<T> PatchAsync<T>(string operation, object? data, dynamic? pathParameters,
+    Task<T> PatchAsync<T>(string operation, object? data, PathParameters? pathParameters,
         QueryParameters? queryParameters, Dictionary<string, string>? headers);
 
     /// <summary>
@@ -624,9 +645,9 @@ public interface IRestClient
     /// <typeparam name="T">Type of data that will be returned.</typeparam>
     /// <param name="operation">The operation URL.</param>
     /// <param name="data">Data object that should be sent to server.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<T> PatchAsync<T>(string operation, object data, dynamic pathParameters,
+    Task<T> PatchAsync<T>(string operation, object data, PathParameters pathParameters,
         QueryParameters queryParameters);
 
     /// <summary>
@@ -641,8 +662,8 @@ public interface IRestClient
     /// <typeparam name="T">Type of data that will be returned.</typeparam>
     /// <param name="operation">The operation URL.</param>
     /// <param name="data">Data object that should be sent to server.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
-    Task<T> PatchAsync<T>(string operation, object data, dynamic pathParameters);
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    Task<T> PatchAsync<T>(string operation, object data, PathParameters pathParameters);
 
     /// <summary>
     /// Performs Asynchronous HTTP PATCH operation with specified operation URL (with interpolated {value} parts), query parameters and request content data.
@@ -715,10 +736,10 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request failed. Exception.Data contains details on failure.</exception>
     /// <param name="operation">The operation URL.</param>
     /// <param name="data">Data object that should be sent to server.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="headers">Additional request header(s) to add to this request in addition to default global headers (added in client setup).</param>
-    Task<HttpResponseMessage> PutAsync(string operation, object? data, dynamic? pathParameters,
+    Task<HttpResponseMessage> PutAsync(string operation, object? data, PathParameters? pathParameters,
         QueryParameters? queryParameters, Dictionary<string, string>? headers);
 
     /// <summary>
@@ -732,9 +753,9 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request failed. Exception.Data contains details on failure.</exception>
     /// <param name="operation">The operation URL.</param>
     /// <param name="data">Data object that should be sent to server.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<HttpResponseMessage> PutAsync(string operation, object data, dynamic pathParameters,
+    Task<HttpResponseMessage> PutAsync(string operation, object data, PathParameters pathParameters,
         QueryParameters queryParameters);
 
     /// <summary>
@@ -748,8 +769,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request failed. Exception.Data contains details on failure.</exception>
     /// <param name="operation">The operation URL.</param>
     /// <param name="data">Data object that should be sent to server.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
-    Task<HttpResponseMessage> PutAsync(string operation, object data, dynamic pathParameters);
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    Task<HttpResponseMessage> PutAsync(string operation, object data, PathParameters pathParameters);
 
     /// <summary>
     /// Performs Asynchronous HTTP PUT operation with specified operation URL (with interpolated {value} parts), query parameters and request content data.
@@ -821,10 +842,10 @@ public interface IRestClient
     /// <typeparam name="T">Type of data that will be returned.</typeparam>
     /// <param name="operation">The operation URL.</param>
     /// <param name="data">Data object that should be sent to server.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="headers">Additional request header(s) to add to this request in addition to default global headers (added in client setup).</param>
-    Task<T> PutAsync<T>(string operation, object? data, dynamic? pathParameters,
+    Task<T> PutAsync<T>(string operation, object? data, PathParameters? pathParameters,
         QueryParameters? queryParameters, Dictionary<string, string>? headers);
 
     /// <summary>
@@ -839,9 +860,9 @@ public interface IRestClient
     /// <typeparam name="T">Type of data that will be returned.</typeparam>
     /// <param name="operation">The operation URL.</param>
     /// <param name="data">Data object that should be sent to server.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<T> PutAsync<T>(string operation, object data, dynamic pathParameters,
+    Task<T> PutAsync<T>(string operation, object data, PathParameters pathParameters,
         QueryParameters queryParameters);
 
     /// <summary>
@@ -856,8 +877,8 @@ public interface IRestClient
     /// <typeparam name="T">Type of data that will be returned.</typeparam>
     /// <param name="operation">The operation URL.</param>
     /// <param name="data">Data object that should be sent to server.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
-    Task<T> PutAsync<T>(string operation, object data, dynamic pathParameters);
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    Task<T> PutAsync<T>(string operation, object data, PathParameters pathParameters);
 
     /// <summary>
     /// Performs Asynchronous HTTP PUT operation with specified operation URL (with interpolated {value} parts), query parameters and request content data.
@@ -931,10 +952,10 @@ public interface IRestClient
     /// <typeparam name="T">Type of data that will be returned.</typeparam>
     /// <param name="operation">The operation URL.</param>
     /// <param name="data">Data object that should be sent to server.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="headers">Additional request header(s) to add to this request in addition to default global headers (added in client setup).</param>
-    Task<T> DeleteAsync<T>(string operation, object? data, dynamic? pathParameters,
+    Task<T> DeleteAsync<T>(string operation, object? data, PathParameters? pathParameters,
         QueryParameters? queryParameters, Dictionary<string, string>? headers);
 
     /// <summary>
@@ -949,9 +970,9 @@ public interface IRestClient
     /// <typeparam name="T">Type of data that will be returned.</typeparam>
     /// <param name="operation">The operation URL.</param>
     /// <param name="data">Data object that should be sent to server.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<T> DeleteAsync<T>(string operation, dynamic pathParameters,
+    Task<T> DeleteAsync<T>(string operation, PathParameters pathParameters,
         QueryParameters queryParameters, object data);
 
     /// <summary>
@@ -966,8 +987,8 @@ public interface IRestClient
     /// <typeparam name="T">Type of data that will be returned.</typeparam>
     /// <param name="operation">The operation URL.</param>
     /// <param name="data">Data object that should be sent to server.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
-    Task<T> DeleteAsync<T>(string operation, dynamic pathParameters, object data);
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    Task<T> DeleteAsync<T>(string operation, PathParameters pathParameters, object data);
 
     /// <summary>
     /// Performs Asynchronous HTTP DELETE operation with specified operation URL, query parameters and request content data.
@@ -995,9 +1016,9 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request failed. Exception.Data contains details on failure.</exception>
     /// <typeparam name="T">Type of data that will be returned.</typeparam>
     /// <param name="operation">The operation URL.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<T> DeleteAsync<T>(string operation, dynamic pathParameters, QueryParameters queryParameters);
+    Task<T> DeleteAsync<T>(string operation, PathParameters pathParameters, QueryParameters queryParameters);
 
     /// <summary>
     /// Performs Asynchronous HTTP DELETE operation with specified operation URL (with interpolated {value} parts).
@@ -1010,8 +1031,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request failed. Exception.Data contains details on failure.</exception>
     /// <typeparam name="T">Type of data that will be returned.</typeparam>
     /// <param name="operation">The operation URL.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
-    Task<T> DeleteAsync<T>(string operation, dynamic pathParameters);
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    Task<T> DeleteAsync<T>(string operation, PathParameters pathParameters);
 
     /// <summary>
     /// Performs Asynchronous HTTP DELETE operation with specified operation URL and query parameters.
@@ -1053,10 +1074,10 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request failed. Exception.Data contains details on failure.</exception>
     /// <param name="operation">The operation URL.</param>
     /// <param name="data">Data object that should be sent to server.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="headers">Additional request header(s) to add to this request in addition to default global headers (added in client setup).</param>
-    Task<HttpResponseMessage> DeleteAsync(string operation, object? data, dynamic? pathParameters,
+    Task<HttpResponseMessage> DeleteAsync(string operation, object? data, PathParameters? pathParameters,
         QueryParameters? queryParameters, Dictionary<string, string>? headers);
 
     /// <summary>
@@ -1070,9 +1091,9 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request failed. Exception.Data contains details on failure.</exception>
     /// <param name="operation">The operation URL.</param>
     /// <param name="data">Data object that should be sent to server.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<HttpResponseMessage> DeleteAsync(string operation, dynamic pathParameters,
+    Task<HttpResponseMessage> DeleteAsync(string operation, PathParameters pathParameters,
         QueryParameters queryParameters, object data);
 
     /// <summary>
@@ -1086,8 +1107,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request failed. Exception.Data contains details on failure.</exception>
     /// <param name="operation">The operation URL.</param>
     /// <param name="data">Data object that should be sent to server.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
-    Task<HttpResponseMessage> DeleteAsync(string operation, dynamic pathParameters, object data);
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    Task<HttpResponseMessage> DeleteAsync(string operation, PathParameters pathParameters, object data);
 
     /// <summary>
     /// Performs Asynchronous HTTP DELETE operation with specified operation URL, query parameters and request content data.
@@ -1114,9 +1135,9 @@ public interface IRestClient
     /// </summary>
     /// <exception cref="RestClientException">Thrown if request failed. Exception.Data contains details on failure.</exception>
     /// <param name="operation">The operation URL.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<HttpResponseMessage> DeleteAsync(string operation, dynamic pathParameters, QueryParameters queryParameters);
+    Task<HttpResponseMessage> DeleteAsync(string operation, PathParameters pathParameters, QueryParameters queryParameters);
 
     /// <summary>
     /// Performs Asynchronous HTTP DELETE operation with specified operation URL (with interpolated {value} parts).
@@ -1128,8 +1149,8 @@ public interface IRestClient
     /// </summary>
     /// <exception cref="RestClientException">Thrown if request failed. Exception.Data contains details on failure.</exception>
     /// <param name="operation">The operation URL.</param>
-    /// <param name="pathParameters">A dynamic (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
-    Task<HttpResponseMessage> DeleteAsync(string operation, dynamic pathParameters);
+    /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the operation path with (paths like "api/codes/{id}").</param>
+    Task<HttpResponseMessage> DeleteAsync(string operation, PathParameters pathParameters);
 
     /// <summary>
     /// Performs Asynchronous HTTP DELETE operation with specified operation URL and query parameters.
@@ -1182,7 +1203,7 @@ public interface IRestClient
         HttpMethod method,
         string operation,
         object? data,
-        dynamic? pathParameters,
+        PathParameters? pathParameters,
         QueryParameters? queryParameters,
         Dictionary<string, string>? headers);
 
@@ -1207,7 +1228,7 @@ public interface IRestClient
         HttpMethod method,
         string operation,
         object data,
-        dynamic pathParameters,
+        PathParameters pathParameters,
         QueryParameters queryParameters);
 
     /// <summary>
@@ -1229,7 +1250,7 @@ public interface IRestClient
         HttpMethod method,
         string operation,
         object data,
-        dynamic pathParameters);
+        PathParameters pathParameters);
 
     /// <summary>
     /// Composes and returns raw <see cref="HttpRequestMessage"/> with given parameters and authentication from setup. Can be called with _api.SendHttpRequest(request) method.
@@ -1289,7 +1310,7 @@ public interface IRestClient
         HttpMethod method,
         string operation,
         QueryParameters queryParameters,
-        dynamic pathParameters);
+        PathParameters pathParameters);
 
     /// <summary>
     /// Composes and returns raw <see cref="HttpRequestMessage"/> with given parameters and authentication from setup. Can be called with _api.SendHttpRequest(request) method.

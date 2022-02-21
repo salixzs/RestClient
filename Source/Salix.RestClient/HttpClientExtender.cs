@@ -69,7 +69,7 @@ public abstract partial class HttpClientExtender
     /// <param name="pathParameters">The path parameters, replaced placeholders in operation URI (ex. /resource/{id}).</param>
     /// <param name="queryParameters">The query parameters to be added to operation URI after ? mark.</param>
     /// <param name="headers">Additional request header(s) to add to this request in addition to default global headers (added in client setup).</param>
-    private async Task<HttpResponseMessage> SendHttpRequest(HttpMethod method, string operation, object? data = null, dynamic? pathParameters = null, QueryParameters? queryParameters = null, Dictionary<string, string>? headers = null)
+    private async Task<HttpResponseMessage> SendHttpRequest(HttpMethod method, string operation, object? data = null, PathParameters? pathParameters = null, QueryParameters? queryParameters = null, Dictionary<string, string>? headers = null)
     {
         HttpResponseMessage result;
         var timer = Stopwatch.StartNew();
@@ -102,7 +102,7 @@ public abstract partial class HttpClientExtender
     /// <param name="pathParameters">The path parameters, replaced placeholders in operation URI (ex. /resource/{id}).</param>
     /// <param name="queryParameters">The query parameters to be added to operation URI after ? mark.</param>
     /// <param name="headers">Additional request header(s) to add to this request in addition to default global headers (added in client setup).</param>
-    private async Task<T?> SendHttpRequest<T>(HttpMethod method, string operation, object? data = null, dynamic? pathParameters = null, QueryParameters? queryParameters = null, Dictionary<string, string>? headers = null)
+    private async Task<T?> SendHttpRequest<T>(HttpMethod method, string operation, object? data = null, PathParameters? pathParameters = null, QueryParameters? queryParameters = null, Dictionary<string, string>? headers = null)
     {
         HttpResponseMessage result = await this.SendHttpRequest(method, operation, data, pathParameters, queryParameters, headers);
 
