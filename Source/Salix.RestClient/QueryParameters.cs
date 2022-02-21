@@ -6,15 +6,15 @@ using System.Linq;
 namespace Salix.RestClient;
 
 /// <summary>
-/// Class QueryParameterCollection is to manage query parameters for service call.
+/// Class QueryParameters is to manage query parameters for service call.
 /// </summary>
 [DebuggerDisplay("{DebuggerDisplay,nq}")]
-public class QueryParameterCollection : List<QueryParameter>
+public class QueryParameters : List<QueryParameter>
 {
     /// <summary>
     /// Creates new empty Query Parameters collection.
     /// </summary>
-    public QueryParameterCollection()
+    public QueryParameters()
     {
     }
 
@@ -23,8 +23,24 @@ public class QueryParameterCollection : List<QueryParameter>
     /// </summary>
     /// <param name="key">The key.</param>
     /// <param name="value">The value.</param>
-    public QueryParameterCollection(string key, object? value) =>
-        this.Add(new QueryParameter(key, value));
+    public QueryParameters(string key, object? value)
+    {
+        if (value == null)
+        {
+            this.Add(new QueryParameter(key, null));
+            return;
+        }
+
+        foreach (var val in this.SplitCollection(value).ToList())
+        {
+            if (val == null)
+            {
+                continue;
+            }
+
+            this.Add(new QueryParameter(key, value));
+        }
+    }
 
     /// <summary>
     /// Returns serialized, encoded query string. Insertion order is preserved.
@@ -129,6 +145,28 @@ public class QueryParameterCollection : List<QueryParameter>
                     break;
                 }
             }
+        }
+    }
+
+    private IEnumerable<object> SplitCollection(object value)
+    {
+        switch (value)
+        {
+            case string s:
+                yield return s;
+                break;
+            case IEnumerable en:
+            {
+                foreach (var item in en.Cast<object>().SelectMany(this.SplitCollection).ToList())
+                {
+                    yield return item;
+                }
+
+                break;
+            }
+            default:
+                yield return value;
+                break;
         }
     }
 

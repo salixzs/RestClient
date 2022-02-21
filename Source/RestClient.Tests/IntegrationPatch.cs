@@ -49,7 +49,7 @@ namespace RestClient.Tests
         public async Task Patch_ArgsData()
         {
             _api = new BinClientTyped(_httpClient, new RestServiceSettings { BaseAddress = BaseAddress }, _logger);
-            var result = await _api.PatchAsync<MethodResponse>("patch", new RequestObject { Id = 12, Name = "Test" }, new QueryParameterCollection { { "audit", true } });
+            var result = await _api.PatchAsync<MethodResponse>("patch", new RequestObject { Id = 12, Name = "Test" }, new QueryParameters { { "audit", true } });
             result.Should().NotBeNull();
             result.url.Should().Be($"{BaseAddress}/patch?audit=True");
             AssertData(result);
@@ -69,7 +69,7 @@ namespace RestClient.Tests
         public async Task Patch_PathArgsData()
         {
             _api = new BinClientTyped(_httpClient, new RestServiceSettings { BaseAddress = BaseAddress }, _logger);
-            var result = await _api.PatchAsync<MethodResponse>("{method}", new RequestObject { Id = 12, Name = "Test" }, new { method = "patch" }, new QueryParameterCollection { { "audit", true } });
+            var result = await _api.PatchAsync<MethodResponse>("{method}", new RequestObject { Id = 12, Name = "Test" }, new { method = "patch" }, new QueryParameters { { "audit", true } });
             result.Should().NotBeNull();
             result.url.Should().Be($"{BaseAddress}/patch?audit=True");
             AssertData(result);

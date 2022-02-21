@@ -49,7 +49,7 @@ namespace RestClient.Tests
         public async Task Post_ArgsData()
         {
             _api = new BinClientTyped(_httpClient, new RestServiceSettings { BaseAddress = BaseAddress }, _logger);
-            var result = await _api.PostAsync<MethodResponse>("post", new RequestObject { Id = 12, Name = "Test" }, new QueryParameterCollection { { "audit", true } });
+            var result = await _api.PostAsync<MethodResponse>("post", new RequestObject { Id = 12, Name = "Test" }, new QueryParameters { { "audit", true } });
             result.Should().NotBeNull();
             result.url.Should().Be($"{BaseAddress}/post?audit=True");
             AssertData(result);
@@ -69,7 +69,7 @@ namespace RestClient.Tests
         public async Task Post_PathArgsData()
         {
             _api = new BinClientTyped(_httpClient, new RestServiceSettings { BaseAddress = BaseAddress }, _logger);
-            var result = await _api.PostAsync<MethodResponse>("{method}", new RequestObject { Id = 12, Name = "Test" }, new { method = "post" }, new QueryParameterCollection { { "audit", true } });
+            var result = await _api.PostAsync<MethodResponse>("{method}", new RequestObject { Id = 12, Name = "Test" }, new { method = "post" }, new QueryParameters { { "audit", true } });
             result.Should().NotBeNull();
             result.url.Should().Be($"{BaseAddress}/post?audit=True");
             AssertData(result);

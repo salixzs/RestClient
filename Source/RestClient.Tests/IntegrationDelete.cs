@@ -39,7 +39,7 @@ namespace RestClient.Tests
         public async Task Delete_QueryArgs()
         {
             _api = new BinClientTyped(_httpClient, new RestServiceSettings { BaseAddress = BaseAddress }, _logger);
-            var result = await _api.DeleteAsync<MethodResponse>("delete", new QueryParameterCollection { { "skip", 5 }, { "take", 25 } });
+            var result = await _api.DeleteAsync<MethodResponse>("delete", new QueryParameters { { "skip", 5 }, { "take", 25 } });
             result.Should().NotBeNull();
             result.args.Should().NotBeEmpty();
             result.args.Should().HaveCount(2);
@@ -59,7 +59,7 @@ namespace RestClient.Tests
         public async Task Delete_QueryPathArgs()
         {
             _api = new BinClientTyped(_httpClient, new RestServiceSettings { BaseAddress = BaseAddress }, _logger);
-            var result = await _api.DeleteAsync<MethodResponse>("{method}", new { method = "delete" }, new QueryParameterCollection { { "skip", 5 }, { "take", 25 } });
+            var result = await _api.DeleteAsync<MethodResponse>("{method}", new { method = "delete" }, new QueryParameters { { "skip", 5 }, { "take", 25 } });
             result.Should().NotBeNull();
             result.url.Should().Be($"{BaseAddress}/delete?skip=5&take=25");
         }
@@ -80,7 +80,7 @@ namespace RestClient.Tests
         public async Task Delete_QueryPathArgsData()
         {
             _api = new BinClientTyped(_httpClient, new RestServiceSettings { BaseAddress = BaseAddress }, _logger);
-            var result = await _api.DeleteAsync<MethodResponse>("{method}", new { method = "delete" }, new QueryParameterCollection { { "skip", 5 }, { "take", 25 } }, new RequestObject { Id = 12, Name = "Test" });
+            var result = await _api.DeleteAsync<MethodResponse>("{method}", new { method = "delete" }, new QueryParameters { { "skip", 5 }, { "take", 25 } }, new RequestObject { Id = 12, Name = "Test" });
             result.Should().NotBeNull();
             result.url.Should().Be($"{BaseAddress}/delete?skip=5&take=25");
             result.json.Should().NotBeNull();
@@ -104,7 +104,7 @@ namespace RestClient.Tests
         public async Task Delete_QueryArgsData()
         {
             _api = new BinClientTyped(_httpClient, new RestServiceSettings { BaseAddress = BaseAddress }, _logger);
-            var result = await _api.DeleteAsync<MethodResponse>("delete", new QueryParameterCollection { { "skip", 5 }, { "take", 25 } }, new RequestObject { Id = 12, Name = "Test" });
+            var result = await _api.DeleteAsync<MethodResponse>("delete", new QueryParameters { { "skip", 5 }, { "take", 25 } }, new RequestObject { Id = 12, Name = "Test" });
             result.Should().NotBeNull();
             result.url.Should().Be($"{BaseAddress}/delete?skip=5&take=25");
             result.json.Should().NotBeNull();

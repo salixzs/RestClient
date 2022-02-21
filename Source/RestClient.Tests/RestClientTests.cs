@@ -100,7 +100,7 @@ namespace RestClient.Tests
                 _factoryMock.Object,
                 new RestServiceSettings { BaseAddress = "http://mypc/webapi/" },
                 _logger);
-            await testable.GetAsync<DateTime>("base", null, new QueryParameterCollection { new QueryParameter("filter", "all"), new QueryParameter("page", 3) }, null);
+            await testable.GetAsync<DateTime>("base", null, new QueryParameters { new QueryParameter("filter", "all"), new QueryParameter("page", 3) }, null);
             _requestMessage.RequestUri.PathAndQuery.Should().Be("/webapi/base?filter=all&page=3");
         }
 
@@ -114,7 +114,7 @@ namespace RestClient.Tests
             await testable.GetAsync<DateTime>(
                 "person/{id}",
                 new { id = 102332 },
-                new QueryParameterCollection {
+                new QueryParameters {
                     new QueryParameter("filter", "active"),
                     new QueryParameter("page", 2) });
             _requestMessage.RequestUri.PathAndQuery.Should().Be("/webapi/person/102332?filter=active&page=2");
@@ -261,7 +261,7 @@ namespace RestClient.Tests
             var result = testable.PostAsync<long>(
                     "test/{id}",
                     data, new { id = "1" },
-                    new QueryParameterCollection
+                    new QueryParameters
                     {
                         new QueryParameter("nocache", "true")
                     },

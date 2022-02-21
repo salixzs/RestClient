@@ -73,5 +73,13 @@ namespace RestClient.Tests
             _ = testable.Value.Should().BeOfType(typeof(List<string>));
             _ = testable.ToString().Should().Be("Labels=One&Labels=Two&Labels=Three");
         }
+
+        [Fact]
+        public void Create_IntegerArray_IsCorrect()
+        {
+            var testable = new QueryParameter("Id", new int[] { 12, 23, 69 });
+            _ = testable.Value.Should().BeOfType(typeof(int[]));
+            _ = testable.ToString().Should().Be("Id=12&Id=23&Id=69");
+        }
     }
 }

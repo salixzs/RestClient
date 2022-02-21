@@ -14,10 +14,24 @@ public class QueryParameter
     private object? _value;
     private string? _encodedValue;
 
+    private string _name = null!;
+
     /// <summary>
     /// The name (left side) of the query parameter.
     /// </summary>
-    public string Name { get; set; }
+    public string Name
+    {
+        get => _name;
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new RestClientException("Name for Query parameter cannot be empty/whitespace string.");
+            }
+
+            _name = value;
+        }
+    }
 
     /// <summary>
     /// The value (right side) of the query parameter.

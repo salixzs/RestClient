@@ -39,7 +39,7 @@ namespace RestClient.Tests
         public async Task Get_QueryArgs()
         {
             _api = new BinClientTyped(_httpClient, new RestServiceSettings { BaseAddress = BaseAddress }, _logger);
-            var result = await _api.GetAsync<MethodResponse>("get", new QueryParameterCollection { { "skip", 5 }, { "take", 25 } });
+            var result = await _api.GetAsync<MethodResponse>("get", new QueryParameters { { "skip", 5 }, { "take", 25 } });
             result.Should().NotBeNull();
             result.args.Should().NotBeEmpty();
             result.args.Should().HaveCount(2);
@@ -59,7 +59,7 @@ namespace RestClient.Tests
         public async Task Get_QueryPathArgs()
         {
             _api = new BinClientTyped(_httpClient, new RestServiceSettings { BaseAddress = BaseAddress }, _logger);
-            var result = await _api.GetAsync<MethodResponse>("{method}", new { method = "get" }, new QueryParameterCollection { { "skip", 5 }, { "take", 25 } });
+            var result = await _api.GetAsync<MethodResponse>("{method}", new { method = "get" }, new QueryParameters { { "skip", 5 }, { "take", 25 } });
             result.Should().NotBeNull();
             result.url.Should().Be($"{BaseAddress}/get?skip=5&take=25");
         }
@@ -80,7 +80,7 @@ namespace RestClient.Tests
         public async Task Get_QueryPathArgsData()
         {
             _api = new BinClientTyped(_httpClient, new RestServiceSettings { BaseAddress = BaseAddress }, _logger);
-            var result = await _api.GetAsync<MethodResponse>("{method}", new { method = "anything" }, new QueryParameterCollection { { "skip", 5 }, { "take", 25 } }, new RequestObject { Id = 12, Name = "Test" });
+            var result = await _api.GetAsync<MethodResponse>("{method}", new { method = "anything" }, new QueryParameters { { "skip", 5 }, { "take", 25 } }, new RequestObject { Id = 12, Name = "Test" }, new Dictionary<string, string> { { "Numero", "Uno" } });
             result.Should().NotBeNull();
             result.url.Should().Be($"{BaseAddress}/anything?skip=5&take=25");
             result.json.Should().NotBeNull();
@@ -104,7 +104,7 @@ namespace RestClient.Tests
         public async Task Get_QueryArgsData()
         {
             _api = new BinClientTyped(_httpClient, new RestServiceSettings { BaseAddress = BaseAddress }, _logger);
-            var result = await _api.GetAsync<MethodResponse>("anything", new QueryParameterCollection { { "skip", 5 }, { "take", 25 } }, new RequestObject { Id = 12, Name = "Test" });
+            var result = await _api.GetAsync<MethodResponse>("anything", new QueryParameters { { "skip", 5 }, { "take", 25 } }, new RequestObject { Id = 12, Name = "Test" });
             result.Should().NotBeNull();
             result.url.Should().Be($"{BaseAddress}/anything?skip=5&take=25");
             result.json.Should().NotBeNull();

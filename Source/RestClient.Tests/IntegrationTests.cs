@@ -87,11 +87,13 @@ namespace RestClient.Tests
             result.headers["Uno"].Should().Be("Momento");
 
             // Doing another call to see setting headers twice does not happen
-            var result2 = await _api.GetAsync<MethodResponse>("get");
+            var result2 = await _api.GetAsync<MethodResponse>("get", null, null, null, new Dictionary<string, string> { { "Req", "Yepp" } });
             result2.Should().NotBeNull();
             result2.headers.Should().NotBeEmpty();
             result2.headers.Should().ContainKey("Uno");
             result2.headers["Uno"].Should().Be("Momento");
+            result2.headers.Should().ContainKey("Req");
+            result2.headers["Req"].Should().Be("Yepp");
         }
 
         [Fact]

@@ -4,9 +4,6 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
@@ -23,6 +20,11 @@ public abstract partial class HttpClientExtender
     /// HttpClient instance created with client. Changing BaseAddress and DefaultHeaders are possible only before first actual call/use.
     /// </summary>
     public HttpClient HttpClientInstance { get; protected set; } = null!;
+
+    /// <summary>
+    /// Method to be overriden in inheriting class to retrieve authentication key-value pair (eg. Bearer Token)
+    /// </summary>
+    protected virtual async Task<(string Key, string Value)> GetAuthenticationKeyValueAsync() => new("", "");
 
     /// <summary>
     /// Method to be overriden in inheriting class to retrieve authentication key-value pair (eg. Bearer Token)
@@ -67,65 +69,13 @@ public abstract partial class HttpClientExtender
     /// <param name="pathParameters">The path parameters, replaced placeholders in operation URI (ex. /resource/{id}).</param>
     /// <param name="queryParameters">The query parameters to be added to operation URI after ? mark.</param>
     /// <param name="headers">Additional request header(s) to add to this request in addition to default global headers (added in client setup).</param>
-    private async Task<HttpResponseMessage> SendHttpRequest(HttpMethod method, string operation, object? data = null, dynamic? pathParameters = null, QueryParameterCollection? queryParameters = null, Dictionary<string, string>? headers = null)
+    private async Task<HttpResponseMessage> SendHttpRequest(HttpMethod method, string operation, object? data = null, dynamic? pathParameters = null, QueryParameters? queryParameters = null, Dictionary<string, string>? headers = null)
     {
         HttpResponseMessage result;
         var timer = Stopwatch.StartNew();
-        using (HttpRequestMessage request = this.CreateRequest(method, operation, pathParameters, queryParameters))
+
+        using (HttpRequestMessage request = await this.GetRequestMessage(method, operation, data, pathParameters, queryParameters, headers))
         {
-            if (data != null)
-            {
-                _logger.LogTrace("Adding payload data to API RestClient request.");
-                request.Content = new StringContent(await _serializer.SerializeAsync(data), Encoding.UTF8, "application/json");
-            }
-
-            // Handling BASIC authentication
-            if (_settings.Authentication.AuthenticationType == ApiAuthenticationType.Basic)
-            {
-                _logger.LogTrace("Adding Basic authentication token.");
-                var usernamePassword = Encoding.ASCII.GetBytes($"{_settings.Authentication.UserName}:{_settings.Authentication.Password}");
-                request.Headers.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(usernamePassword));
-            }
-
-            // Handling External authentication request (Eg. for BEARER)
-            if (_settings.Authentication.AuthenticationType == ApiAuthenticationType.External)
-            {
-                var (authenticationKey, authenticationValue) = this.GetAuthenticationKeyValue();
-                if (string.IsNullOrEmpty(authenticationKey) || string.IsNullOrEmpty(authenticationValue))
-                {
-                    _logger.LogWarning("External authentication method did not return Key/Value to be added to request. Maybe forgot to implement GetAuthenticationKeyValue() method in your client implementation.th");
-                }
-
-                _logger.LogTrace($"Adding External authentication token \"{authenticationKey} {authenticationValue}\".");
-                request.Headers.Authorization = new AuthenticationHeaderValue(authenticationKey, authenticationValue);
-            }
-
-            if (headers is { Count: > 0 })
-            {
-                foreach (var hdr in headers)
-                {
-                    if (request.Headers.Contains(hdr.Key))
-                    {
-                        _logger.LogTrace($"Changing value of request header {hdr.Key} in API RestClient request.");
-                        request.Headers.Remove(hdr.Key);
-                        request.Headers.Add(hdr.Key, hdr.Value);
-                    }
-                    else
-                    {
-                        _logger.LogTrace($"Adding request header {hdr.Key} to API RestClient request.");
-                        request.Headers.Add(hdr.Key, hdr.Value);
-                    }
-                }
-            }
-
-            // Demand JSON by default, if not specified otherwise
-            if (!request.Headers.Contains("Accept") && !this.HttpClientInstance.DefaultRequestHeaders.Contains("Accept"))
-            {
-                _logger.LogTrace("Adding default Accept header for JSON.");
-                request.Headers.Add("Accept", "application/json");
-            }
-
-            // CALLING THE SERVICE HERE!!!
             _logger.LogDebug($"Calling API {this.HttpClientInstance.BaseAddress} {method} {operation}");
             result = await this.HttpClientInstance.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
         }
@@ -133,25 +83,7 @@ public abstract partial class HttpClientExtender
         if (!result.IsSuccessStatusCode)
         {
             _logger.LogTrace($"API call failed with status code {result.StatusCode}");
-            var contentString = await result.Content.ReadAsStringAsync().ConfigureAwait(false);
-
-            var requestUri = result.RequestMessage.RequestUri?.AbsoluteUri;
-            var errMsg =
-                "Error occurred in API/Service."
-                + $"Request status code: {(int)result.StatusCode} ({result.StatusCode}).\n"
-                + $"{result.RequestMessage.Method.Method} {requestUri}";
-            var retException = new RestClientException(errMsg)
-            {
-                ReasonPhrase = result.ReasonPhrase,
-                StatusCode = result.StatusCode,
-                Method = result.RequestMessage.Method,
-                ResponseContent = contentString
-            };
-            retException.Data.Add("Api.Uri", requestUri);
-            retException.Data.Add("Api.StatusCode", result.StatusCode);
-            retException.Data.Add("Api.RawError", contentString);
-            retException.Data.Add("Api.Method", result.RequestMessage.Method.Method);
-
+            var retException = await this.ComposeRestClientException(result);
             this.StopTimer(timer);
             throw retException;
         }
@@ -170,7 +102,7 @@ public abstract partial class HttpClientExtender
     /// <param name="pathParameters">The path parameters, replaced placeholders in operation URI (ex. /resource/{id}).</param>
     /// <param name="queryParameters">The query parameters to be added to operation URI after ? mark.</param>
     /// <param name="headers">Additional request header(s) to add to this request in addition to default global headers (added in client setup).</param>
-    private async Task<T?> SendHttpRequest<T>(HttpMethod method, string operation, object? data = null, dynamic? pathParameters = null, QueryParameterCollection? queryParameters = null, Dictionary<string, string>? headers = null)
+    private async Task<T?> SendHttpRequest<T>(HttpMethod method, string operation, object? data = null, dynamic? pathParameters = null, QueryParameters? queryParameters = null, Dictionary<string, string>? headers = null)
     {
         HttpResponseMessage result = await this.SendHttpRequest(method, operation, data, pathParameters, queryParameters, headers);
 
@@ -192,59 +124,113 @@ public abstract partial class HttpClientExtender
         }
         catch (Exception ex)
         {
-            var requestUri = result.RequestMessage?.RequestUri?.AbsoluteUri ?? "---";
-            var requestMethod = result.RequestMessage?.Method?.Method ?? "---";
-            var errMsg =
-                $"Error occurred while deserializing API response to {typeof(T).FullName}.\n"
-                + "Make sure you are calling correct operation and deserializing result to correct type.\n"
-                + $"Request status code: {(int)result.StatusCode} ({result.StatusCode}).\n"
-                + $"{requestMethod} {requestUri}";
-            var retException = new RestClientException(errMsg, ex);
-            retException.Data.Add("Api.Uri", requestUri);
-            retException.Data.Add("Api.Method", requestMethod);
-            throw retException;
+            throw CreateSerializationRestClientException<T>(result, ex);
         }
     }
 
     /// <summary>
-    /// Creates the HTTP request for API client to execute.
+    /// Sends the HTTP request to API service based with given request object.
     /// </summary>
-    /// <param name="method">The HTTP method to use for request.</param>
-    /// <param name="operation">The operation (base URL).</param>
-    /// <param name="pathParameters">The path parameters (replacing placeholders in base path).</param>
-    /// <param name="queryParameters">The query parameters - added after question mark in URL.</param>
-    /// <returns>
-    /// A formed API Request to execute through HttpClient.
-    /// </returns>
-    protected virtual HttpRequestMessage CreateRequest(HttpMethod method, string operation, dynamic pathParameters, QueryParameterCollection queryParameters)
-        => new(method, this.ComposeFullOperationUrl(operation, pathParameters, queryParameters));
+    /// <param name="request">The HTTP method to be used for request.</param>
+    public async Task<HttpResponseMessage> SendHttpRequest(HttpRequestMessage request)
+    {
+        HttpResponseMessage result;
+        var timer = Stopwatch.StartNew();
+
+        using (request)
+        {
+            _logger.LogDebug($"Calling API {this.HttpClientInstance.BaseAddress} {request.Method} {request.RequestUri}");
+            result = await this.HttpClientInstance.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+        }
+
+        if (!result.IsSuccessStatusCode)
+        {
+            var retException = await this.ComposeRestClientException(result);
+            this.StopTimer(timer);
+            throw retException;
+        }
+
+        this.StopTimer(timer);
+        return result;
+    }
 
     /// <summary>
-    /// Composes the full operation URL with base URL, operation and optional query parameters.
+    /// Sends the HTTP request to APi service based on provided Request message.
     /// </summary>
-    /// <param name="operation">The operation of API (like "api/data").</param>
-    /// <param name="pathParameters">The path parameters.</param>
-    /// <param name="queryParameters">The query parameters.</param>
-    private string ComposeFullOperationUrl(string operation, dynamic? pathParameters, QueryParameterCollection? queryParameters)
+    /// <typeparam name="T">Expected return type (if any).</typeparam>
+    /// <param name="request">Fully formed API request object.</param>
+    public async Task<T?> SendHttpRequest<T>(HttpRequestMessage request)
     {
-        // Replace all path parameters
-        if (pathParameters != null)
+        var result = await this.SendHttpRequest(request);
+
+        // 204 = generally success code, but no results
+        if (result.StatusCode == HttpStatusCode.NoContent)
         {
-            foreach (PropertyInfo property in pathParameters.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
-            {
-                _logger.LogTrace($"API URL: Replacing {property.Name} with value {property.GetValue(pathParameters, null).ToString()}");
-                operation = operation.Replace($"{{{property.Name}}}", property.GetValue(pathParameters, null).ToString());
-            }
+            _logger.LogTrace("API call returned empty result");
+
+            // Returns null for classes or nullable value types (and strings), otherwise default value type
+            // Lists if explicitly set as type parameter get initialized as empty lists
+            return default;
         }
 
-        // Add query parameters
-        if (queryParameters != null)
+        var contentString = await result.Content.ReadAsStringAsync().ConfigureAwait(false);
+        try
         {
-            _logger.LogTrace($"API URL: Adding query parameters: {queryParameters}");
-            operation = $"{operation}?{queryParameters}";
+            var returnValue = await _serializer.DeserializeAsync<T>(contentString);
+            return returnValue;
         }
+        catch (Exception ex)
+        {
+            throw CreateSerializationRestClientException<T>(result, ex);
+        }
+    }
 
-        return operation;
+    /// <summary>
+    /// Creates <see cref="RestClientException"/> from failure during result deserialization.
+    /// </summary>
+    /// <param name="requestResult">Failed response result.</param>
+    /// <param name="serializationException">Exception thrown by serializer.</param>
+    private static RestClientException CreateSerializationRestClientException<T>(HttpResponseMessage requestResult, Exception serializationException)
+    {
+        var requestUri = requestResult.RequestMessage?.RequestUri?.AbsoluteUri ?? "---";
+        var requestMethod = requestResult.RequestMessage?.Method?.Method ?? "---";
+        var errMsg =
+            $"Error occurred while deserializing API response to {typeof(T).FullName}.\n"
+            + "Make sure you are calling correct operation and deserializing result to correct type.\n"
+            + $"Request status code: {(int)requestResult.StatusCode} ({requestResult.StatusCode}).\n"
+            + $"{requestMethod} {requestUri}";
+        var retException = new RestClientException(errMsg, serializationException);
+        retException.Data.Add("Api.Uri", requestUri);
+        retException.Data.Add("Api.Method", requestMethod);
+        return retException;
+    }
+
+    /// <summary>
+    /// Creates <see cref="RestClientException"/> from failed Request response.
+    /// </summary>
+    /// <param name="result">Failed response result.</param>
+    private async Task<RestClientException> ComposeRestClientException(HttpResponseMessage result)
+    {
+        _logger.LogTrace($"API call failed with status code {result.StatusCode}");
+        var contentString = await result.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+        var requestUri = result.RequestMessage.RequestUri?.AbsoluteUri;
+        var errMsg =
+            "Error occurred in API/Service."
+            + $"Request status code: {(int)result.StatusCode} ({result.StatusCode}).\n"
+            + $"{result.RequestMessage.Method.Method} {requestUri}";
+        var retException = new RestClientException(errMsg)
+        {
+            ReasonPhrase = result.ReasonPhrase,
+            StatusCode = result.StatusCode,
+            Method = result.RequestMessage.Method,
+            ResponseContent = contentString
+        };
+        retException.Data.Add("Api.Uri", requestUri);
+        retException.Data.Add("Api.StatusCode", result.StatusCode);
+        retException.Data.Add("Api.RawError", contentString);
+        retException.Data.Add("Api.Method", result.RequestMessage.Method.Method);
+        return retException;
     }
 
     /// <summary>

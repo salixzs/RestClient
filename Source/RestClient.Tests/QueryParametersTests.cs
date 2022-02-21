@@ -7,12 +7,12 @@ using Xunit;
 namespace RestClient.Tests
 {
     [ExcludeFromCodeCoverage]
-    public class QueryParameterCollectionTests
+    public class QueryParametersTests
     {
         [Fact]
         public void Add_Integer_IsCorrect()
         {
-            var testable = new QueryParameterCollection
+            var testable = new QueryParameters
             {
                 { "Identifier", 1001 }
             };
@@ -22,14 +22,14 @@ namespace RestClient.Tests
         [Fact]
         public void OneValue_Constructor_IsAdded()
         {
-            var testable = new QueryParameterCollection("Identifier", 1001);
+            var testable = new QueryParameters("Identifier", 1001);
             _ = testable.ToString().Should().Be("Identifier=1001");
         }
 
         [Fact]
         public void Add_IntegerParameter_IsCorrect()
         {
-            var testable = new QueryParameterCollection
+            var testable = new QueryParameters
             {
                 new QueryParameter("Identifier", 1001)
             };
@@ -39,7 +39,7 @@ namespace RestClient.Tests
         [Fact]
         public void Add_EncodedString_IsCorrect()
         {
-            var testable = new QueryParameterCollection
+            var testable = new QueryParameters
             {
                 { "Label", "P--Ć--П--@" }
             };
@@ -49,7 +49,7 @@ namespace RestClient.Tests
         [Fact]
         public void Add_EncodedString_NoEncoding()
         {
-            var testable = new QueryParameterCollection
+            var testable = new QueryParameters
             {
                 { "Label", "PĆK@", true }
             };
@@ -57,9 +57,29 @@ namespace RestClient.Tests
         }
 
         [Fact]
+        public void Add_MultiListValues_AreProcessed()
+        {
+            var testable = new QueryParameters
+            {
+                { "Label", new List<string> { "This", "is", "Cool" } }
+            };
+            _ = testable.ToString().Should().Be("Label=This&Label=is&Label=Cool");
+        }
+
+        [Fact]
+        public void Add_MultiArrayValues_AreProcessed()
+        {
+            var testable = new QueryParameters
+            {
+                { "Id", new int[3] { 7, 21, 33 } }
+            };
+            _ = testable.ToString().Should().Be("Id=7&Id=21&Id=33");
+        }
+
+        [Fact]
         public void MultiKeys_InList_AreProcessed()
         {
-            var testable = new QueryParameterCollection
+            var testable = new QueryParameters
             {
                 { "Label", "MUU" },
                 { "Desc", "What" },
@@ -73,7 +93,7 @@ namespace RestClient.Tests
         [Fact]
         public void MultiKeys_AsList_AreProcessed()
         {
-            var testable = new QueryParameterCollection
+            var testable = new QueryParameters
             {
                 { "Label", "MUU" },
                 { "Desc", "What" },
@@ -87,7 +107,7 @@ namespace RestClient.Tests
         [Fact]
         public void ContainsKey_ExistsInList_IsTrue()
         {
-            var testable = new QueryParameterCollection
+            var testable = new QueryParameters
             {
                 { "Label", "MUU" },
                 { "Desc", "What" },
@@ -101,7 +121,7 @@ namespace RestClient.Tests
         [Fact]
         public void ContainsKey_NotExistsInList_IsFalse()
         {
-            var testable = new QueryParameterCollection
+            var testable = new QueryParameters
             {
                 { "Label", "MUU" },
                 { "Desc", "What" },
@@ -114,7 +134,7 @@ namespace RestClient.Tests
         [Fact]
         public void Remove_FirstFromList_IsRemoved()
         {
-            var testable = new QueryParameterCollection
+            var testable = new QueryParameters
             {
                 { "Label", "MUU" },
                 { "Desc", "What" },
@@ -128,7 +148,7 @@ namespace RestClient.Tests
         [Fact]
         public void Remove_MiddleFromList_IsRemoved()
         {
-            var testable = new QueryParameterCollection
+            var testable = new QueryParameters
             {
                 { "Label", "MUU" },
                 { "Desc", "What" },
@@ -142,7 +162,7 @@ namespace RestClient.Tests
         [Fact]
         public void Remove_LastFromList_IsRemoved()
         {
-            var testable = new QueryParameterCollection
+            var testable = new QueryParameters
             {
                 { "Label", "MUU" },
                 { "Desc", "What" },
@@ -156,7 +176,7 @@ namespace RestClient.Tests
         [Fact]
         public void Get_FromList_ReturnsValue()
         {
-            var testable = new QueryParameterCollection
+            var testable = new QueryParameters
             {
                 { "Label", "MUU" },
                 { "Desc", "What" },
@@ -169,7 +189,7 @@ namespace RestClient.Tests
         [Fact]
         public void GetNonExisting_FromList_ReturnsNull()
         {
-            var testable = new QueryParameterCollection
+            var testable = new QueryParameters
             {
                 { "Label", "MUU" },
                 { "Desc", "What" },
@@ -182,7 +202,7 @@ namespace RestClient.Tests
         [Fact]
         public void GetMulti_InList_AreReturned()
         {
-            var testable = new QueryParameterCollection
+            var testable = new QueryParameters
             {
                 { "Label", "MUU" },
                 { "Desc", "What" },
@@ -199,7 +219,7 @@ namespace RestClient.Tests
         [Fact]
         public void Add_ByIndex_IsAdded()
         {
-            var testable = new QueryParameterCollection
+            var testable = new QueryParameters
             {
                 { "Label", "MUU" },
                 { "Desc", "What" },
@@ -213,7 +233,7 @@ namespace RestClient.Tests
         [Fact]
         public void AddParam_ByIndex_IsAdded()
         {
-            var testable = new QueryParameterCollection
+            var testable = new QueryParameters
             {
                 { "Label", "MUU" },
                 { "Desc", "What" },
@@ -227,7 +247,7 @@ namespace RestClient.Tests
         [Fact]
         public void Replace_ByIndex_IsReplaced()
         {
-            var testable = new QueryParameterCollection
+            var testable = new QueryParameters
             {
                 { "Label", "MUU" },
                 { "Desc", "What" },
@@ -241,7 +261,7 @@ namespace RestClient.Tests
         [Fact]
         public void ReplaceParm_ByIndex_IsReplaced()
         {
-            var testable = new QueryParameterCollection
+            var testable = new QueryParameters
             {
                 { "Label", "MUU" },
                 { "Desc", "What" },
@@ -255,7 +275,7 @@ namespace RestClient.Tests
         [Fact]
         public void Replace_ByIndex_NullRemoves()
         {
-            var testable = new QueryParameterCollection
+            var testable = new QueryParameters
             {
                 { "Label", "MUU" },
                 { "Desc", "What" },
