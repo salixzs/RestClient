@@ -12,8 +12,7 @@ public class CommandTypedClient : IConsoleOperation
 
     public async Task<int> DoWork()
     {
-        _client.HttpClientInstance.BaseAddress = new Uri("https://localhost");
-        Consolix.WriteLine("Typed client call to get GUID from https://httpbin.org", ConsoleColor.Green);
+        Consolix.WriteLine("Typed client calls to https://httpbin.org", ConsoleColor.Green);
 
         var uuid = await _client.GetAsync<BinUuid>("uuid");
         Consolix.WriteLine("Call to uuid returned: {0}", uuid.uuid, ConsoleColor.DarkYellow, ConsoleColor.Cyan);

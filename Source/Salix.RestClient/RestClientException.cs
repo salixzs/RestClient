@@ -20,6 +20,11 @@ public class RestClientException : Exception
     public HttpStatusCode? StatusCode { get; set; }
 
     /// <summary>
+    /// Reason for failure, usually sent by server together with message.
+    /// </summary>
+    public string? ReasonPhrase { get; set; }
+
+    /// <summary>
     /// In case exception is created from Api Client, calling some service - it may contain Method (GET, PUT, POST), used when called service.
     /// </summary>
     public HttpMethod? Method { get; set; }

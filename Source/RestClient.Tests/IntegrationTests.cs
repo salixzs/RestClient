@@ -106,6 +106,7 @@ namespace RestClient.Tests
             catch (RestClientException ex)
             {
                 ex.Message.Should().Contain("Error occurred in API/Service.");
+                ex.ReasonPhrase.Should().Be("NOT FOUND");
                 ex.Data.Should().NotBeNull();
                 ex.Data.Count.Should().Be(4);
                 ex.Data["Api.Uri"].Should().Be($"https://httpbin.org/guid");

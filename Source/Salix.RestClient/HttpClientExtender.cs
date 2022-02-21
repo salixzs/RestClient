@@ -140,15 +140,17 @@ public abstract partial class HttpClientExtender
                 "Error occurred in API/Service."
                 + $"Request status code: {(int)result.StatusCode} ({result.StatusCode}).\n"
                 + $"{result.RequestMessage.Method.Method} {requestUri}";
-            var retException = new RestClientException(errMsg);
+            var retException = new RestClientException(errMsg)
+            {
+                ReasonPhrase = result.ReasonPhrase,
+                StatusCode = result.StatusCode,
+                Method = result.RequestMessage.Method,
+                ResponseContent = contentString
+            };
             retException.Data.Add("Api.Uri", requestUri);
-
             retException.Data.Add("Api.StatusCode", result.StatusCode);
-            retException.StatusCode = result.StatusCode;
             retException.Data.Add("Api.RawError", contentString);
             retException.Data.Add("Api.Method", result.RequestMessage.Method.Method);
-            retException.Method = result.RequestMessage.Method;
-            retException.ResponseContent = contentString;
 
             this.StopTimer(timer);
             throw retException;
