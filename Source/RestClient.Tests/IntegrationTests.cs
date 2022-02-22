@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Salix.RestClient;
@@ -138,6 +139,45 @@ namespace RestClient.Tests
                 ex.InnerException.Should().NotBeNull();
                 ex.InnerException.Should().BeOfType(typeof(Newtonsoft.Json.JsonSerializationException));
                 ex.InnerException.Message.Should().Contain("Cannot deserialize");
+            }
+        }
+
+        [Fact]
+        public async Task Get_LongAndCancel_Throws()
+        {
+            _api = new BinClientTyped(_httpClient, new RestServiceSettings { BaseAddress = "https://httpbin.org" }, _logger);
+            try
+            {
+                var cancelSource = new CancellationTokenSource();
+                cancelSource.CancelAfter(TimeSpan.FromSeconds(3));
+                var result = await _api.GetAsync<MethodResponse>("delay/10", cancelSource.Token);
+
+                // Should not get here, so make fake Assert
+                "Operation was success".Should().Be("Operation was cancelled.");
+            }
+            catch (TaskCanceledException ex)
+            {
+                _api.CallTime.Should().BeCloseTo(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(1));
+            }
+        }
+
+        [Fact]
+        public async Task Get_LongAndCancel_NotThrow()
+        {
+            _api = new BinClientTyped(_httpClient, new RestServiceSettings { BaseAddress = "https://httpbin.org" }, _logger)
+            {
+                ThrowOnCancellation = false
+            };
+            try
+            {
+                var cancelSource = new CancellationTokenSource();
+                cancelSource.CancelAfter(TimeSpan.FromSeconds(3));
+                var result = await _api.GetAsync<MethodResponse>("delay/10", cancelSource.Token);
+                _api.CallTime.Should().BeCloseTo(TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(1));
+            }
+            catch (TaskCanceledException ex)
+            {
+                "Operation threw".Should().Be("Operation did not throw.");
             }
         }
     }

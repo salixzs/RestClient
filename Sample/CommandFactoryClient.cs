@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using Salix.Extensions;
 
 namespace RestClient.Sample;

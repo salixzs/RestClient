@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -102,7 +101,7 @@ public abstract partial class HttpClientExtender
     /// <returns>
     /// A formed API Request to execute through HttpClient.
     /// </returns>
-    protected virtual HttpRequestMessage CreateRequest(HttpMethod method, string operation, PathParameters? pathParameters, QueryParameters? queryParameters)
+    private HttpRequestMessage CreateRequest(HttpMethod method, string operation, PathParameters? pathParameters, QueryParameters? queryParameters)
         => new(method, this.ComposeFullOperationUrl(operation, pathParameters, queryParameters));
 
     /// <summary>

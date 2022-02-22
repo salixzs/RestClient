@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Salix.RestClient;
@@ -29,7 +30,8 @@ public interface IRestClient
     /// </summary>
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="request">The HTTP method to be used for request.</param>
-    Task<HttpResponseMessage> SendHttpRequest(HttpRequestMessage request);
+    /// <param name="cancellationToken">Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> SendHttpRequest(HttpRequestMessage request, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Sends the HTTP request to API service based on given Request message.
@@ -37,7 +39,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <typeparam name="T">Expected return type. May be null for nullable types if response is NoContent type.</typeparam>
     /// <param name="request">Fully formed API request object.</param>
-    Task<T?> SendHttpRequest<T>(HttpRequestMessage request);
+    /// <param name="cancellationToken">Asynchronous operation cancellation token.</param>
+    Task<T?> SendHttpRequest<T>(HttpRequestMessage request, CancellationToken cancellationToken = default);
 
     #region Get<HttpResponseMessage>
     /// <summary>
@@ -63,7 +66,8 @@ public interface IRestClient
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
     /// <param name="headers">Additional request header(s) to add to this request (in addition to default global headers, which are defined in settings).</param>
-    Task<HttpResponseMessage> GetAsync(string operation, PathParameters? pathParameters, QueryParameters? queryParameters, object? data, Dictionary<string, string>? headers);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> GetAsync(string operation, PathParameters? pathParameters, QueryParameters? queryParameters, object? data, Dictionary<string, string>? headers, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP GET operation with specified operation URL (may contain interpolated {value} parts) and:<br/>
@@ -85,7 +89,8 @@ public interface IRestClient
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<HttpResponseMessage> GetAsync(string operation, PathParameters pathParameters, QueryParameters queryParameters, object data);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> GetAsync(string operation, PathParameters pathParameters, QueryParameters queryParameters, object data, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP GET operation with specified operation URL (may contain interpolated {value} parts) and:<br/>
@@ -104,7 +109,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<HttpResponseMessage> GetAsync(string operation, PathParameters pathParameters, object data);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> GetAsync(string operation, PathParameters pathParameters, object data, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP GET operation with specified operation URL and:<br/>
@@ -125,7 +131,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<HttpResponseMessage> GetAsync(string operation, QueryParameters queryParameters, object data);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> GetAsync(string operation, QueryParameters queryParameters, object data, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP GET operation with specified operation URL and object as content data.<br/>
@@ -139,7 +146,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<HttpResponseMessage> GetAsync(string operation, object data);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> GetAsync(string operation, object data, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP GET operation with specified operation URL (may contain interpolated {value} parts) and query parameters.<br/>
@@ -157,7 +165,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<HttpResponseMessage> GetAsync(string operation, PathParameters pathParameters, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> GetAsync(string operation, PathParameters pathParameters, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP GET operation with specified operation URL and query parameters.<br/>
@@ -171,7 +180,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<HttpResponseMessage> GetAsync(string operation, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> GetAsync(string operation, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP GET operation with specified operation URL (may contain interpolated {value} parts) and query parameters.<br/>
@@ -185,7 +195,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
-    Task<HttpResponseMessage> GetAsync(string operation, PathParameters pathParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> GetAsync(string operation, PathParameters pathParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP GET operation with specified operation URL.<br/>
@@ -198,7 +209,8 @@ public interface IRestClient
     /// </summary>
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
-    Task<HttpResponseMessage> GetAsync(string operation);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> GetAsync(string operation, CancellationToken cancel = default);
     #endregion
 
     #region Get<T>
@@ -225,7 +237,8 @@ public interface IRestClient
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
     /// <param name="headers">Additional request header(s) to add to this request (in addition to default global headers, which are defined in settings).</param>
-    Task<T?> GetAsync<T>(string operation, PathParameters? pathParameters, QueryParameters? queryParameters, object? data, Dictionary<string, string>? headers);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> GetAsync<T>(string operation, PathParameters? pathParameters, QueryParameters? queryParameters, object? data, Dictionary<string, string>? headers, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP GET operation with specified operation URL (may contain interpolated {value} parts) and:<br/>
@@ -247,7 +260,8 @@ public interface IRestClient
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<T?> GetAsync<T>(string operation, PathParameters pathParameters, QueryParameters queryParameters, object data);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> GetAsync<T>(string operation, PathParameters pathParameters, QueryParameters queryParameters, object data, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP GET operation with specified operation URL and:<br/>
@@ -267,7 +281,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<T?> GetAsync<T>(string operation, QueryParameters queryParameters, object data);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> GetAsync<T>(string operation, QueryParameters queryParameters, object data, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP GET operation with specified operation URL (may contain interpolated {value} parts) and object as content data.<br/>
@@ -285,7 +300,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<T?> GetAsync<T>(string operation, PathParameters pathParameters, object data);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> GetAsync<T>(string operation, PathParameters pathParameters, object data, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP GET operation with specified operation URL and object as content data.<br/>
@@ -299,7 +315,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization/deserialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<T?> GetAsync<T>(string operation, object data);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> GetAsync<T>(string operation, object data, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP GET operation with specified operation URL (may contain interpolated {value} parts) and query parameters.<br/>
@@ -317,7 +334,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<T?> GetAsync<T>(string operation, PathParameters pathParameters, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> GetAsync<T>(string operation, PathParameters pathParameters, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP GET operation with specified operation URL (may contain interpolated {value} parts).<br/>
@@ -331,7 +349,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization/deserialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
-    Task<T?> GetAsync<T>(string operation, PathParameters pathParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> GetAsync<T>(string operation, PathParameters pathParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP GET operation with specified operation URL and query parameters.<br/>
@@ -345,7 +364,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization/deserialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<T?> GetAsync<T>(string operation, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> GetAsync<T>(string operation, QueryParameters queryParameters, CancellationToken cancel = default);
 
 
     /// <summary>
@@ -359,7 +379,8 @@ public interface IRestClient
     /// </summary>
     /// <exception cref="RestClientException">Thrown if request or serialization/deserialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
-    Task<T?> GetAsync<T>(string operation);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> GetAsync<T>(string operation, CancellationToken cancel = default);
     #endregion
 
     #region Post<HttpResponseMessage>
@@ -386,7 +407,8 @@ public interface IRestClient
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
     /// <param name="headers">Additional request header(s) to add to this request (in addition to default global headers, which are defined in settings).</param>
-    Task<HttpResponseMessage> PostAsync(string operation, object? data, PathParameters? pathParameters, QueryParameters? queryParameters, Dictionary<string, string>? headers);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> PostAsync(string operation, object? data, PathParameters? pathParameters, QueryParameters? queryParameters, Dictionary<string, string>? headers, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP POST operation with specified operation URL (may contain interpolated {value} parts) and:<br/>
@@ -408,7 +430,8 @@ public interface IRestClient
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<HttpResponseMessage> PostAsync(string operation, object data, PathParameters pathParameters, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> PostAsync(string operation, object data, PathParameters pathParameters, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP POST operation with specified operation URL (may contain interpolated {value} parts) and object as request content data.<br/>
@@ -426,7 +449,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<HttpResponseMessage> PostAsync(string operation, object data, PathParameters pathParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> PostAsync(string operation, object data, PathParameters pathParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP POST operation with specified operation URL and:<br/>
@@ -446,7 +470,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<HttpResponseMessage> PostAsync(string operation, object data, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> PostAsync(string operation, object data, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP POST operation with specified operation URL and object as content data.<br/>
@@ -460,7 +485,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<HttpResponseMessage> PostAsync(string operation, object data);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> PostAsync(string operation, object data, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP POST operation with specified operation URL (may contain interpolated {value} parts) and query parameters.<br/>
@@ -479,7 +505,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<HttpResponseMessage> PostAsync(string operation, PathParameters pathParameters, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> PostAsync(string operation, PathParameters pathParameters, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP POST operation with specified operation URL (may contain interpolated {value} parts).<br/>
@@ -494,7 +521,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
-    Task<HttpResponseMessage> PostAsync(string operation, PathParameters pathParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> PostAsync(string operation, PathParameters pathParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP POST operation with specified operation URL and query parameters.<br/>
@@ -509,7 +537,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<HttpResponseMessage> PostAsync(string operation, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> PostAsync(string operation, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP POST operation with specified operation URL.<br/>
@@ -523,7 +552,8 @@ public interface IRestClient
     /// </summary>
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
-    Task<HttpResponseMessage> PostAsync(string operation);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> PostAsync(string operation, CancellationToken cancel = default);
     #endregion
 
     #region Post<T>
@@ -550,7 +580,8 @@ public interface IRestClient
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
     /// <param name="headers">Additional request header(s) to add to this request (in addition to default global headers, which are defined in settings).</param>
-    Task<T?> PostAsync<T>(string operation, object? data, PathParameters? pathParameters, QueryParameters? queryParameters, Dictionary<string, string>? headers);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> PostAsync<T>(string operation, object? data, PathParameters? pathParameters, QueryParameters? queryParameters, Dictionary<string, string>? headers, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP POST operation with specified operation URL (may contain interpolated {value} parts) and:<br/>
@@ -572,7 +603,8 @@ public interface IRestClient
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<T?> PostAsync<T>(string operation, object data, PathParameters pathParameters, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> PostAsync<T>(string operation, object data, PathParameters pathParameters, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP POST operation with specified operation URL and:<br/>
@@ -592,7 +624,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<T?> PostAsync<T>(string operation, object data, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> PostAsync<T>(string operation, object data, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP POST operation with specified operation URL (may contain interpolated {value} parts) and data object as request content data.<br/>
@@ -610,7 +643,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<T?> PostAsync<T>(string operation, object data, PathParameters pathParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> PostAsync<T>(string operation, object data, PathParameters pathParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP POST operation with specified operation URL (may contain interpolated {value} parts) and data object as request content data.<br/>
@@ -624,7 +658,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<T?> PostAsync<T>(string operation, object data);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> PostAsync<T>(string operation, object data, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP POST operation with specified operation URL (may contain interpolated {value} parts) and query parameters.<br/>
@@ -643,7 +678,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<T?> PostAsync<T>(string operation, PathParameters pathParameters, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> PostAsync<T>(string operation, PathParameters pathParameters, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP POST operation with specified operation URL and query parameters.<br/>
@@ -658,7 +694,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<T?> PostAsync<T>(string operation, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> PostAsync<T>(string operation, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP POST operation with specified operation URL (may contain interpolated {value} parts).<br/>
@@ -673,7 +710,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
-    Task<T?> PostAsync<T>(string operation, PathParameters pathParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> PostAsync<T>(string operation, PathParameters pathParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP POST operation with specified operation URL.<br/>
@@ -687,7 +725,8 @@ public interface IRestClient
     /// </summary>
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
-    Task<T?> PostAsync<T>(string operation);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> PostAsync<T>(string operation, CancellationToken cancel = default);
     #endregion
 
     #region Patch<HttpResponseMessage>
@@ -714,7 +753,8 @@ public interface IRestClient
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
     /// <param name="headers">Additional request header(s) to add to this request (in addition to default global headers, which are defined in settings).</param>
-    Task<HttpResponseMessage> PatchAsync(string operation, object? data, PathParameters? pathParameters, QueryParameters? queryParameters, Dictionary<string, string>? headers);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> PatchAsync(string operation, object? data, PathParameters? pathParameters, QueryParameters? queryParameters, Dictionary<string, string>? headers, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PATCH operation with specified operation URL (may contain interpolated {value} parts) and:<br/>
@@ -736,7 +776,8 @@ public interface IRestClient
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<HttpResponseMessage> PatchAsync(string operation, object data, PathParameters pathParameters, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> PatchAsync(string operation, object data, PathParameters pathParameters, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PATCH operation with specified operation URL (may contain interpolated {value} parts) and request content data object.<br/>
@@ -754,7 +795,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<HttpResponseMessage> PatchAsync(string operation, object data, PathParameters pathParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> PatchAsync(string operation, object data, PathParameters pathParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PATCH operation with specified operation URL, query parameters and request content data object.<br/>
@@ -772,7 +814,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<HttpResponseMessage> PatchAsync(string operation, object data, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> PatchAsync(string operation, object data, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PATCH operation with specified operation URL and request content data object.<br/>
@@ -786,7 +829,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<HttpResponseMessage> PatchAsync(string operation, object data);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> PatchAsync(string operation, object data, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PATCH operation with specified operation URL (may contain interpolated {value} parts) and query parameters.<br/>
@@ -805,7 +849,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<HttpResponseMessage> PatchAsync(string operation, PathParameters pathParameters, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> PatchAsync(string operation, PathParameters pathParameters, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PATCH operation with specified operation URL (may contain interpolated {value} parts).<br/>
@@ -822,7 +867,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
-    Task<HttpResponseMessage> PatchAsync(string operation, PathParameters pathParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> PatchAsync(string operation, PathParameters pathParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PATCH operation with specified operation URL and query parameters.<br/>
@@ -837,7 +883,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<HttpResponseMessage> PatchAsync(string operation, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> PatchAsync(string operation, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PATCH operation with specified operation URL.<br/>
@@ -851,7 +898,8 @@ public interface IRestClient
     /// </summary>
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
-    Task<HttpResponseMessage> PatchAsync(string operation);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> PatchAsync(string operation, CancellationToken cancel = default);
     #endregion
 
     #region Patch<T>
@@ -878,7 +926,8 @@ public interface IRestClient
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
     /// <param name="headers">Additional request header(s) to add to this request (in addition to default global headers, which are defined in settings).</param>
-    Task<T?> PatchAsync<T>(string operation, object? data, PathParameters? pathParameters, QueryParameters? queryParameters, Dictionary<string, string>? headers);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> PatchAsync<T>(string operation, object? data, PathParameters? pathParameters, QueryParameters? queryParameters, Dictionary<string, string>? headers, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PATCH operation with specified operation URL (may contain interpolated {value} parts) and:<br/>
@@ -900,7 +949,8 @@ public interface IRestClient
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<T?> PatchAsync<T>(string operation, object data, PathParameters pathParameters, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> PatchAsync<T>(string operation, object data, PathParameters pathParameters, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PATCH operation with specified operation URL (may contain interpolated {value} parts) and content data object.<br/>
@@ -918,7 +968,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<T?> PatchAsync<T>(string operation, object data, PathParameters pathParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> PatchAsync<T>(string operation, object data, PathParameters pathParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PATCH operation with specified operation URL, query parameters and content data object.<br/>
@@ -936,7 +987,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<T?> PatchAsync<T>(string operation, object data, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> PatchAsync<T>(string operation, object data, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PATCH operation with specified operation URL and content data object.<br/>
@@ -950,7 +1002,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<T?> PatchAsync<T>(string operation, object data);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> PatchAsync<T>(string operation, object data, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PATCH operation with specified operation URL (may contain interpolated {value} parts) and query parameters.<br/>
@@ -969,7 +1022,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<T?> PatchAsync<T>(string operation, PathParameters pathParameters, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> PatchAsync<T>(string operation, PathParameters pathParameters, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PATCH operation with specified operation URL (may contain interpolated {value} parts).<br/>
@@ -986,7 +1040,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
-    Task<T?> PatchAsync<T>(string operation, PathParameters pathParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> PatchAsync<T>(string operation, PathParameters pathParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PATCH operation with specified operation URL and query parameters.<br/>
@@ -1001,7 +1056,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<T?> PatchAsync<T>(string operation, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> PatchAsync<T>(string operation, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PATCH operation with specified operation URL.<br/>
@@ -1015,7 +1071,8 @@ public interface IRestClient
     /// </summary>
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
-    Task<T?> PatchAsync<T>(string operation);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> PatchAsync<T>(string operation, CancellationToken cancel = default);
     #endregion
 
     #region Put<HttpResponseMessage>
@@ -1042,7 +1099,8 @@ public interface IRestClient
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
     /// <param name="headers">Additional request header(s) to add to this request (in addition to default global headers, which are defined in settings).</param>
-    Task<HttpResponseMessage> PutAsync(string operation, object? data, PathParameters? pathParameters, QueryParameters? queryParameters, Dictionary<string, string>? headers);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> PutAsync(string operation, object? data, PathParameters? pathParameters, QueryParameters? queryParameters, Dictionary<string, string>? headers, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PUT operation with specified operation URL (may contain interpolated {value} parts) and:<br/>
@@ -1064,7 +1122,8 @@ public interface IRestClient
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<HttpResponseMessage> PutAsync(string operation, object data, PathParameters pathParameters, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> PutAsync(string operation, object data, PathParameters pathParameters, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PUT operation with specified operation URL (may contain interpolated {value} parts) and content data object.<br/>
@@ -1082,7 +1141,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<HttpResponseMessage> PutAsync(string operation, object data, PathParameters pathParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> PutAsync(string operation, object data, PathParameters pathParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PUT operation with specified operation URL and:<br/>
@@ -1102,7 +1162,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<HttpResponseMessage> PutAsync(string operation, object data, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> PutAsync(string operation, object data, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PUT operation with specified operation URL and content data object.<br/>
@@ -1116,7 +1177,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<HttpResponseMessage> PutAsync(string operation, object data);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> PutAsync(string operation, object data, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PUT operation with specified operation URL (may contain interpolated {value} parts) and query parameters.<br/>
@@ -1135,7 +1197,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<HttpResponseMessage> PutAsync(string operation, PathParameters pathParameters, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> PutAsync(string operation, PathParameters pathParameters, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PUT operation with specified operation URL (may contain interpolated {value} parts).<br/>
@@ -1150,7 +1213,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
-    Task<HttpResponseMessage> PutAsync(string operation, PathParameters pathParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> PutAsync(string operation, PathParameters pathParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PUT operation with specified operation URL and query parameters.<br/>
@@ -1165,7 +1229,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<HttpResponseMessage> PutAsync(string operation, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> PutAsync(string operation, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PUT operation with specified operation URL.<br/>
@@ -1179,7 +1244,8 @@ public interface IRestClient
     /// </summary>
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
-    Task<HttpResponseMessage> PutAsync(string operation);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> PutAsync(string operation, CancellationToken cancel = default);
     #endregion
 
     #region Put<T>
@@ -1207,7 +1273,8 @@ public interface IRestClient
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
     /// <param name="headers">Additional request header(s) to add to this request (in addition to default global headers, which are defined in settings).</param>
-    Task<T?> PutAsync<T>(string operation, object? data, PathParameters? pathParameters, QueryParameters? queryParameters, Dictionary<string, string>? headers);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> PutAsync<T>(string operation, object? data, PathParameters? pathParameters, QueryParameters? queryParameters, Dictionary<string, string>? headers, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PUT operation with specified operation URL (may contain interpolated {value} parts) and:<br/>
@@ -1229,7 +1296,8 @@ public interface IRestClient
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<T?> PutAsync<T>(string operation, object data, PathParameters pathParameters, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> PutAsync<T>(string operation, object data, PathParameters pathParameters, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PUT operation with specified operation URL (may contain interpolated {value} parts) and content data object.<br/>
@@ -1247,7 +1315,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<T?> PutAsync<T>(string operation, object data, PathParameters pathParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> PutAsync<T>(string operation, object data, PathParameters pathParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PUT operation with specified operation URL, query parameters and content data object.<br/>
@@ -1265,7 +1334,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<T?> PutAsync<T>(string operation, object data, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> PutAsync<T>(string operation, object data, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PUT operation with specified operation URL and content data object.<br/>
@@ -1279,7 +1349,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<T?> PutAsync<T>(string operation, object data);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> PutAsync<T>(string operation, object data, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PUT operation with specified operation URL (may contain interpolated {value} parts) and query parameters.<br/>
@@ -1298,7 +1369,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<T?> PutAsync<T>(string operation, PathParameters pathParameters, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> PutAsync<T>(string operation, PathParameters pathParameters, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PUT operation with specified operation URL (may contain interpolated {value} parts).<br/>
@@ -1313,7 +1385,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
-    Task<T?> PutAsync<T>(string operation, PathParameters pathParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> PutAsync<T>(string operation, PathParameters pathParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PUT operation with specified operation URL and query parameters.<br/>
@@ -1328,7 +1401,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<T?> PutAsync<T>(string operation, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> PutAsync<T>(string operation, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP PUT operation with specified operation URL.<br/>
@@ -1342,7 +1416,8 @@ public interface IRestClient
     /// </summary>
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
-    Task<T?> PutAsync<T>(string operation);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> PutAsync<T>(string operation, CancellationToken cancel = default);
     #endregion
 
     #region Delete<HttpResponseMessage>
@@ -1369,7 +1444,8 @@ public interface IRestClient
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
     /// <param name="headers">Additional request header(s) to add to this request (in addition to default global headers, which are defined in settings).</param>
-    Task<HttpResponseMessage> DeleteAsync(string operation, PathParameters? pathParameters, QueryParameters? queryParameters, object? data, Dictionary<string, string>? headers);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> DeleteAsync(string operation, PathParameters? pathParameters, QueryParameters? queryParameters, object? data, Dictionary<string, string>? headers, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP DELETE operation with specified operation URL (may contain interpolated {value} parts) and:<br/>
@@ -1391,7 +1467,8 @@ public interface IRestClient
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<HttpResponseMessage> DeleteAsync(string operation, PathParameters pathParameters, QueryParameters queryParameters, object data);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> DeleteAsync(string operation, PathParameters pathParameters, QueryParameters queryParameters, object data, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP DELETE operation with specified operation URL (may contain interpolated {value} parts) and content data object.<br/>
@@ -1409,7 +1486,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<HttpResponseMessage> DeleteAsync(string operation, PathParameters pathParameters, object data);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> DeleteAsync(string operation, PathParameters pathParameters, object data, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP DELETE operation with specified operation URL, query parameters and content object data.<br/>
@@ -1427,7 +1505,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<HttpResponseMessage> DeleteAsync(string operation, QueryParameters queryParameters, object data);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> DeleteAsync(string operation, QueryParameters queryParameters, object data, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP DELETE operation with specified operation URL and content object data.<br/>
@@ -1441,7 +1520,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization/deserialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<HttpResponseMessage> DeleteAsync(string operation, object data);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> DeleteAsync(string operation, object data, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP DELETE operation with specified operation URL (may contain interpolated {value} parts) and query parameters.<br/>
@@ -1459,7 +1539,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<HttpResponseMessage> DeleteAsync(string operation, PathParameters pathParameters, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> DeleteAsync(string operation, PathParameters pathParameters, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP DELETE operation with specified operation URL (may contain interpolated {value} parts).<br/>
@@ -1473,7 +1554,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization/deserialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
-    Task<HttpResponseMessage> DeleteAsync(string operation, PathParameters pathParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> DeleteAsync(string operation, PathParameters pathParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP DELETE operation with specified operation URL and query parameters.<br/>
@@ -1487,7 +1569,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization/deserialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<HttpResponseMessage> DeleteAsync(string operation, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> DeleteAsync(string operation, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP DELETE operation with specified operation URL.<br/>
@@ -1500,7 +1583,8 @@ public interface IRestClient
     /// </summary>
     /// <exception cref="RestClientException">Thrown if request or serialization/deserialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
-    Task<HttpResponseMessage> DeleteAsync(string operation);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<HttpResponseMessage> DeleteAsync(string operation, CancellationToken cancel = default);
     #endregion
 
     #region Delete<T>
@@ -1527,7 +1611,8 @@ public interface IRestClient
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
     /// <param name="headers">Additional request header(s) to add to this request (in addition to default global headers, which are defined in settings).</param>
-    Task<T?> DeleteAsync<T>(string operation, PathParameters? pathParameters, QueryParameters? queryParameters, object? data, Dictionary<string, string>? headers);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> DeleteAsync<T>(string operation, PathParameters? pathParameters, QueryParameters? queryParameters, object? data, Dictionary<string, string>? headers, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP DELETE operation with specified operation URL (may contain interpolated {value} parts) and:<br/>
@@ -1549,7 +1634,8 @@ public interface IRestClient
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<T?> DeleteAsync<T>(string operation, PathParameters pathParameters, QueryParameters queryParameters, object data);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> DeleteAsync<T>(string operation, PathParameters pathParameters, QueryParameters queryParameters, object data, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP DELETE operation with specified operation URL (may contain interpolated {value} parts) and content data object.<br/>
@@ -1567,7 +1653,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<T?> DeleteAsync<T>(string operation, PathParameters pathParameters, object data);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> DeleteAsync<T>(string operation, PathParameters pathParameters, object data, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP DELETE operation with specified operation URL, query parameters and content object data.<br/>
@@ -1585,7 +1672,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<T?> DeleteAsync<T>(string operation, QueryParameters queryParameters, object data);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> DeleteAsync<T>(string operation, QueryParameters queryParameters, object data, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP DELETE operation with specified operation URL and content object data.<br/>
@@ -1599,7 +1687,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization/deserialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="data">The data object to be sent as request payload. Object gets serialized internally.</param>
-    Task<T?> DeleteAsync<T>(string operation, object data);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> DeleteAsync<T>(string operation, object data, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP DELETE operation with specified operation URL (may contain interpolated {value} parts) and query parameters.<br/>
@@ -1617,7 +1706,8 @@ public interface IRestClient
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<T?> DeleteAsync<T>(string operation, PathParameters pathParameters, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> DeleteAsync<T>(string operation, PathParameters pathParameters, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP DELETE operation with specified operation URL (may contain interpolated {value} parts).<br/>
@@ -1631,7 +1721,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization/deserialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path). Can be interpolated string, if used with <paramref name="pathParameters"/> parameter.</param>
     /// <param name="pathParameters">A PathParameters (Expando) object of parameters to fill the <paramref name="operation"/> interpolation parts with given values ("api/codes/{id}" + new { id = 12 }).</param>
-    Task<T?> DeleteAsync<T>(string operation, PathParameters pathParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> DeleteAsync<T>(string operation, PathParameters pathParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP DELETE operation with specified operation URL and query parameters.<br/>
@@ -1645,7 +1736,8 @@ public interface IRestClient
     /// <exception cref="RestClientException">Thrown if request or serialization/deserialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
     /// <param name="queryParameters">The list of parameters to be added to operation (in Query string, like ...operation?param1=val1&amp;param2=val2).</param>
-    Task<T?> DeleteAsync<T>(string operation, QueryParameters queryParameters);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> DeleteAsync<T>(string operation, QueryParameters queryParameters, CancellationToken cancel = default);
 
     /// <summary>
     /// Performs Asynchronous HTTP DELETE operation with specified operation URL.<br/>
@@ -1658,7 +1750,8 @@ public interface IRestClient
     /// </summary>
     /// <exception cref="RestClientException">Thrown if request or serialization/deserialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>
     /// <param name="operation">API endpoint address for resource (without base path).</param>
-    Task<T?> DeleteAsync<T>(string operation);
+    /// <param name="cancel">Optional: Asynchronous operation cancellation token.</param>
+    Task<T?> DeleteAsync<T>(string operation, CancellationToken cancel = default);
     #endregion
 
     #region GetRequestObject

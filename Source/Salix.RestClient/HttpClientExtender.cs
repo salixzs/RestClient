@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
@@ -20,6 +21,16 @@ public abstract partial class HttpClientExtender
     /// HttpClient instance created with client. Changing BaseAddress and DefaultHeaders are possible only before first actual call/use.
     /// </summary>
     public HttpClient HttpClientInstance { get; protected set; } = null!;
+
+    /// <summary>
+    /// Set Operation Cancellation behavior when <see cref="CancellationToken"/> is explicitly supplied.<br/>
+    /// Default setting: True (will throw <see cref="OperationCanceledException"/>.<br/>
+    /// Normally you should allow to throw exception and handle it in your code to avoid weird behaviors.<br/>
+    /// On False:<br/>
+    /// - Typed operation calls will return default values.<br/>
+    /// - HttpResponseMessage operations will return empty object with Status <see cref="HttpStatusCode.ResetContent"/>.
+    /// </summary>
+    public bool ThrowOnCancellation { get; set; } = true;
 
     /// <summary>
     /// Method to be overriden in inheriting class to retrieve authentication key-value pair (eg. Bearer Token)
@@ -69,19 +80,45 @@ public abstract partial class HttpClientExtender
     /// <param name="pathParameters">The path parameters, replaced placeholders in operation URI (ex. /resource/{id}).</param>
     /// <param name="queryParameters">The query parameters to be added to operation URI after ? mark.</param>
     /// <param name="headers">Additional request header(s) to add to this request in addition to default global headers (added in client setup).</param>
-    private async Task<HttpResponseMessage> SendHttpRequest(HttpMethod method, string operation, object? data = null, PathParameters? pathParameters = null, QueryParameters? queryParameters = null, Dictionary<string, string>? headers = null)
+    /// <param name="cancellationToken">Async operation cancellation token.</param>
+    private async Task<HttpResponseMessage> SendHttpRequest(HttpMethod method, string operation, object? data = null, PathParameters? pathParameters = null, QueryParameters? queryParameters = null, Dictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
     {
-        HttpResponseMessage result;
+        var result = new HttpResponseMessage(HttpStatusCode.ResetContent);
         var timer = Stopwatch.StartNew();
 
         using (var request = await this.GetRequestMessage(method, operation, data, pathParameters, queryParameters, headers))
         {
             _logger.LogDebug($"Calling API {this.HttpClientInstance.BaseAddress} {method} {operation}");
-            result = await this.HttpClientInstance.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+
+            try
+            {
+                // ========== API Service CALLED HERE!!!! ========
+                result = await this.HttpClientInstance
+                    .SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                this.StopTimer(timer, true);
+                if (this.ThrowOnCancellation)
+                {
+                    throw;
+                }
+            }
+            catch (Exception)
+            {
+                this.StopTimer(timer, true);
+                throw;
+            }
         }
 
         if (!result.IsSuccessStatusCode)
         {
+            if (result.StatusCode == HttpStatusCode.ResetContent && result.RequestMessage == null)
+            {
+                return result;
+            }
+
             _logger.LogTrace($"API call failed with status code {result.StatusCode}");
             var retException = await this.ComposeRestClientException(result);
             this.StopTimer(timer);
@@ -102,9 +139,10 @@ public abstract partial class HttpClientExtender
     /// <param name="pathParameters">The path parameters, replaced placeholders in operation URI (ex. /resource/{id}).</param>
     /// <param name="queryParameters">The query parameters to be added to operation URI after ? mark.</param>
     /// <param name="headers">Additional request header(s) to add to this request in addition to default global headers (added in client setup).</param>
-    private async Task<T?> SendHttpRequest<T>(HttpMethod method, string operation, object? data = null, PathParameters? pathParameters = null, QueryParameters? queryParameters = null, Dictionary<string, string>? headers = null)
+    /// <param name="cancellationToken">Asynchronous operation cancellation token.</param>
+    private async Task<T?> SendHttpRequest<T>(HttpMethod method, string operation, object? data = null, PathParameters? pathParameters = null, QueryParameters? queryParameters = null, Dictionary<string, string>? headers = null, CancellationToken cancellationToken = default)
     {
-        var result = await this.SendHttpRequest(method, operation, data, pathParameters, queryParameters, headers);
+        var result = await this.SendHttpRequest(method, operation, data, pathParameters, queryParameters, headers, cancellationToken);
 
         // 204 = generally success code, but no results
         if (result.StatusCode == HttpStatusCode.NoContent)
@@ -113,6 +151,11 @@ public abstract partial class HttpClientExtender
 
             // Returns null for classes or nullable value types (and strings), otherwise default value type
             // Lists if explicitly set as type parameter get initialized as empty lists
+            return default;
+        }
+
+        if (!result.IsSuccessStatusCode)
+        {
             return default;
         }
 
@@ -129,19 +172,41 @@ public abstract partial class HttpClientExtender
     }
 
     /// <inheritdoc cref="IRestClient.SendHttpRequest"/>
-    public async Task<HttpResponseMessage> SendHttpRequest(HttpRequestMessage request)
+    public async Task<HttpResponseMessage> SendHttpRequest(HttpRequestMessage request, CancellationToken cancellationToken = default)
     {
-        HttpResponseMessage result;
+        var result = new HttpResponseMessage(HttpStatusCode.ResetContent);
         var timer = Stopwatch.StartNew();
 
         using (request)
         {
             _logger.LogDebug($"Calling API {this.HttpClientInstance.BaseAddress} {request.Method} {request.RequestUri}");
-            result = await this.HttpClientInstance.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+            try
+            {
+                // ========== API Service CALLED HERE!!!! ========
+                result = await this.HttpClientInstance.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                this.StopTimer(timer, true);
+                if (this.ThrowOnCancellation)
+                {
+                    throw;
+                }
+            }
+            catch (Exception)
+            {
+                this.StopTimer(timer, true);
+                throw;
+            }
         }
 
         if (!result.IsSuccessStatusCode)
         {
+            if (result.StatusCode == HttpStatusCode.ResetContent && result.RequestMessage == null)
+            {
+                return result;
+            }
+
             var retException = await this.ComposeRestClientException(result);
             this.StopTimer(timer);
             throw retException;
@@ -152,9 +217,9 @@ public abstract partial class HttpClientExtender
     }
 
     /// <inheritdoc cref="IRestClient.SendHttpRequest{T}"/>
-    public async Task<T?> SendHttpRequest<T>(HttpRequestMessage request)
+    public async Task<T?> SendHttpRequest<T>(HttpRequestMessage request, CancellationToken cancellationToken = default)
     {
-        var result = await this.SendHttpRequest(request);
+        var result = await this.SendHttpRequest(request, cancellationToken);
 
         // 204 = generally success code, but no results
         if (result.StatusCode == HttpStatusCode.NoContent)
@@ -163,6 +228,11 @@ public abstract partial class HttpClientExtender
 
             // Returns null for classes or nullable value types (and strings), otherwise default value type
             // Lists if explicitly set as type parameter get initialized as empty lists
+            return default;
+        }
+
+        if (!result.IsSuccessStatusCode)
+        {
             return default;
         }
 
@@ -229,10 +299,12 @@ public abstract partial class HttpClientExtender
     /// <summary>
     /// Common things to finalize operation timing.
     /// </summary>
-    private void StopTimer(Stopwatch timer)
+    private void StopTimer(Stopwatch timer, bool wasCancelled = false)
     {
         timer.Stop();
-        _logger.LogDebug($"API call took {timer.Elapsed}");
+        _logger.LogDebug(wasCancelled
+            ? $"API call was cancelled or failed after {timer.Elapsed}"
+            : $"API call took {timer.Elapsed}");
         this.CallTime = timer.Elapsed;
     }
 
