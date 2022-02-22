@@ -2,24 +2,37 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 
 namespace Salix.RestClient;
 
 /// <summary>
-/// Class QueryParameters is to manage query parameters for service call.
+/// A collection of request operation URL query parameters (operation?parm1=val1&amp;parm2=val2).
 /// </summary>
 [DebuggerDisplay("{DebuggerDisplay,nq}")]
 public class QueryParameters : List<QueryParameter>
 {
     /// <summary>
-    /// Creates new empty Query Parameters collection.
+    /// A collection of request operation URL query parameters (operation?parm1=val1&amp;parm2=val2).<br/>
+    /// Creates a new empty query parameter collection.<br/><br/>
+    /// <code>
+    /// var queryParameters = new QueryParameters();
+    /// </code>
     /// </summary>
     public QueryParameters()
     {
     }
 
     /// <summary>
-    /// Creates Query parameter collection with one value. More can be added by <see cref="Add(string, object)"/> method.
+    /// A collection of request operation URL query parameters (operation?parm1=val1&amp;parm2=val2).<br/>
+    /// Creates a new query parameter collection with one query parameter (name=value).<br/><br/>
+    /// <code>
+    /// // Will end in operation?audit=true
+    /// var queryParameters = new QueryParameters("audit", true);
+    /// 
+    /// // Will end in operation?id=1&amp;id=2&amp;id=3
+    /// var queryParameters = new QueryParameters("id", new int[] { 1, 2, 3 });
+    /// </code>
     /// </summary>
     /// <param name="key">The key.</param>
     /// <param name="value">The value.</param>
@@ -31,19 +44,77 @@ public class QueryParameters : List<QueryParameter>
             return;
         }
 
-        foreach (var val in this.SplitCollection(value).ToList())
+        foreach (var val in this.SplitCollection(value).ToList().Where(val => val != null))
         {
-            if (val == null)
-            {
-                continue;
-            }
-
-            this.Add(new QueryParameter(key, value));
+            this.Add(new QueryParameter(key, val));
         }
     }
 
     /// <summary>
-    /// Returns serialized, encoded query string. Insertion order is preserved.
+    /// A collection of request operation URL query parameters (operation?parm1=val1&amp;parm2=val2).<br/>
+    /// Creates a new query parameter collection with two query parameters (name=value&amp;name=value).<br/><br/>
+    /// <code>
+    /// // Will end in operation?skip=0&amp;take=15
+    /// var queryParameters = new QueryParameters("skip", 0, "take", 15);
+    /// 
+    /// // Will end in operation?id=1&amp;id=2&amp;id=3&amp;page=1
+    /// var queryParameters = new QueryParameters("id", new int[] { 1, 2, 3 }, "page", 1);
+    /// </code>
+    /// </summary>
+    /// <param name="key1">The key/name of the first parameter.</param>
+    /// <param name="value1">The value for the first parameter. Can be array of values.</param>
+    public QueryParameters(string key1, object? value1, string key2, object? value2)
+    {
+        if (value1 == null)
+        {
+            this.Add(new QueryParameter(key1, null));
+        }
+        else
+        {
+            foreach (var val in this.SplitCollection(value1).ToList().Where(val => val != null))
+            {
+                this.Add(new QueryParameter(key1, val));
+            }
+        }
+
+        if (value2 == null)
+        {
+            this.Add(new QueryParameter(key2, null));
+            return;
+        }
+
+        foreach (var val in this.SplitCollection(value2).ToList().Where(val => val != null))
+        {
+            this.Add(new QueryParameter(key2, val));
+        }
+
+    }
+
+    /// <summary>
+    /// A collection of request operation URL query parameters (operation?parm1=val1&amp;parm2=val2).<br/>
+    /// Creates a new query parameter collection with all properties in given anonymous object.<br/><br/>
+    /// <code>
+    /// var queryParameters = new QueryParameters(new { skip = 100, take = 20 });
+    /// </code>
+    /// </summary>
+    /// <param name="nameValues">Anonymous object. Can be defined like "new { id = 12, childId = 1232 }".</param>
+    public QueryParameters(dynamic nameValues)
+    {
+        if (nameValues == null)
+        {
+            return;
+        }
+
+        foreach (PropertyInfo property in nameValues.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
+        {
+            this.Add(new QueryParameter(property.Name, property.GetValue(nameValues, null).ToString()));
+        }
+    }
+
+    /// <summary>
+    /// Returns serialized, encoded query string with all parameters in this collection. Insertion order is preserved.<br/><br/>
+    /// Example:<br/>
+    /// parm1=val1&amp;parm2=val2&amp;parm3=val3
     /// </summary>
     public override string ToString() => string.Join("&", this.Select(p => p.ToString()));
 

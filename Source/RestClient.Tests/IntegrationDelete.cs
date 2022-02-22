@@ -68,7 +68,7 @@ namespace RestClient.Tests
         public async Task Delete_Data()
         {
             _api = new BinClientTyped(_httpClient, new RestServiceSettings { BaseAddress = BaseAddress }, _logger);
-            var result = await _api.DeleteAsync<MethodResponse>("delete", new RequestObject { Id = 12, Name = "Test" }, null, null, null);
+            var result = await _api.DeleteAsync<MethodResponse>("delete", new RequestObject { Id = 12, Name = "Test" });
             result.Should().NotBeNull();
             result.url.Should().Be($"{BaseAddress}/delete");
             result.json.Should().NotBeNull();

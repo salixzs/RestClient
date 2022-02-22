@@ -61,7 +61,7 @@ public abstract partial class HttpClientExtender
     }
 
     /// <summary>
-    /// Sends the HTTP request based on given criteria (parameters).
+    /// Sends the HTTP request based on given criteria (parameters) and returns RAW HttpResponseMessage.
     /// </summary>
     /// <param name="method">The HTTP method to be used for request.</param>
     /// <param name="operation">The operation URI - resource to be used.</param>
@@ -74,7 +74,7 @@ public abstract partial class HttpClientExtender
         HttpResponseMessage result;
         var timer = Stopwatch.StartNew();
 
-        using (HttpRequestMessage request = await this.GetRequestMessage(method, operation, data, pathParameters, queryParameters, headers))
+        using (var request = await this.GetRequestMessage(method, operation, data, pathParameters, queryParameters, headers))
         {
             _logger.LogDebug($"Calling API {this.HttpClientInstance.BaseAddress} {method} {operation}");
             result = await this.HttpClientInstance.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
@@ -93,7 +93,7 @@ public abstract partial class HttpClientExtender
     }
 
     /// <summary>
-    /// Sends the HTTP request based on given criteria (parameters).
+    /// Sends the HTTP request based on given criteria (parameters) and returns deserialized {T} object.
     /// </summary>
     /// <typeparam name="T">Expected return type (if any).</typeparam>
     /// <param name="method">The HTTP method to be used for request.</param>
@@ -104,7 +104,7 @@ public abstract partial class HttpClientExtender
     /// <param name="headers">Additional request header(s) to add to this request in addition to default global headers (added in client setup).</param>
     private async Task<T?> SendHttpRequest<T>(HttpMethod method, string operation, object? data = null, PathParameters? pathParameters = null, QueryParameters? queryParameters = null, Dictionary<string, string>? headers = null)
     {
-        HttpResponseMessage result = await this.SendHttpRequest(method, operation, data, pathParameters, queryParameters, headers);
+        var result = await this.SendHttpRequest(method, operation, data, pathParameters, queryParameters, headers);
 
         // 204 = generally success code, but no results
         if (result.StatusCode == HttpStatusCode.NoContent)
@@ -128,10 +128,7 @@ public abstract partial class HttpClientExtender
         }
     }
 
-    /// <summary>
-    /// Sends the HTTP request to API service based with given request object.
-    /// </summary>
-    /// <param name="request">The HTTP method to be used for request.</param>
+    /// <inheritdoc cref="IRestClient.SendHttpRequest"/>
     public async Task<HttpResponseMessage> SendHttpRequest(HttpRequestMessage request)
     {
         HttpResponseMessage result;
@@ -154,11 +151,7 @@ public abstract partial class HttpClientExtender
         return result;
     }
 
-    /// <summary>
-    /// Sends the HTTP request to APi service based on provided Request message.
-    /// </summary>
-    /// <typeparam name="T">Expected return type (if any).</typeparam>
-    /// <param name="request">Fully formed API request object.</param>
+    /// <inheritdoc cref="IRestClient.SendHttpRequest{T}"/>
     public async Task<T?> SendHttpRequest<T>(HttpRequestMessage request)
     {
         var result = await this.SendHttpRequest(request);

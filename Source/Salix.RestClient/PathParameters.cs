@@ -14,7 +14,10 @@ namespace Salix.RestClient
 #pragma warning restore CA1010 // Generic interface should also be implemented
     {
         /// <summary>
-        /// A collection of Name = Value pairs for API operation Path interpolation parts variable replacements.
+        /// A collection of Name = Value pairs for API operation Path interpolation parts variable replacements.<br/><br/>
+        /// <code>
+        /// var pathParameters = new PathParameters();
+        /// </code>
         /// </summary>
         public PathParameters()
         {
@@ -22,7 +25,10 @@ namespace Salix.RestClient
 
         /// <summary>
         /// A collection of Name = Value pairs for API operation Path interpolation parts variable replacements.<br/>
-        /// Constructor immediately adding one path parameter to collection.
+        /// Constructor immediately adding one path parameter to collection.<br/><br/>
+        /// <code>
+        /// var pathParameters = new PathParameters("id", 231);
+        /// </code>
         /// </summary>
         /// <param name="name">Name of path parameter (inside curly braces, like "id" in example "/api/cars/{id}").</param>
         /// <param name="value">A value, which is used in place of interpolated path parameter<br/>Like "id" in example "/api/cars/{id}" with value 12 would become "/api/cars/12").</param>
@@ -31,7 +37,10 @@ namespace Salix.RestClient
 
         /// <summary>
         /// A collection of Name = Value pairs for API operation Path interpolation parts variable replacements.<br/>
-        /// Constructor immediately adding two path parameters to collection.
+        /// Constructor immediately adding two path parameters to collection.<br/><br/>
+        /// <code>
+        /// var pathParameters = new PathParameters("id", 231, "childId", 1002);
+        /// </code>
         /// </summary>
         /// <param name="pathName1">Name of path parameter (inside curly braces, like "id" in example "/api/cars/{id}").<br/>Should be specified together with <paramref name="pathValue1"/>!</param>
         /// <param name="pathValue1">A value, which is used in place of interpolated path parameter<br/>Like "id" in example "/api/cars/{id}" with value 12 would become "/api/cars/12").<br/>Should be specified together with <paramref name="pathName1"/>!</param>
@@ -45,7 +54,16 @@ namespace Salix.RestClient
 
         /// <summary>
         /// A collection of Name = Value pairs for API operation Path interpolation parts variable replacements.<br/>
-        /// Constructor immediately adding multiple path parameters to collection from passed in collection.
+        /// Constructor immediately adding multiple path parameters to collection from passed in collection.<br/><br/>
+        /// <code>
+        /// var pathFeed = new Dictionary&lt;string, object&gt;
+        /// {
+        ///     { "one", 1001 },
+        ///     { "two", "zwei" },
+        ///     { "type", "excel" }
+        /// }
+        /// var pathParameters = new PathParameters(pathFeed);
+        /// </code>
         /// </summary>
         /// <param name="nameValues">Any collection of name/value pairs to be added as path parameters.</param>
         public PathParameters(IDictionary nameValues)
@@ -63,9 +81,12 @@ namespace Salix.RestClient
 
         /// <summary>
         /// A collection of Name = Value pairs for API operation Path interpolation parts variable replacements.<br/>
-        /// Constructor immediately adding one or multiple path parameters to collection from anonymous object.
+        /// Constructor immediately adding one or multiple path parameters to collection from anonymous object.<br/><br/>
+        /// <code>
+        /// var pathParameters = new PathParameters(new { id = 12, childId = 1232 });
+        /// </code>
         /// </summary>
-        /// <param name="nameValues">Anonymous object. Can be defined like "new { id = 12, "child" = 1232 }".</param>
+        /// <param name="nameValues">Anonymous object. Can be defined like "new { id = 12, childId = 1232 }".</param>
         public PathParameters(dynamic nameValues)
         {
             if (nameValues == null)

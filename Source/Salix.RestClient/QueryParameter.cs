@@ -6,7 +6,7 @@ using System.Linq;
 namespace Salix.RestClient;
 
 /// <summary>
-/// To handle Query parameters for API calls.
+/// Describes a single query parameter to be added to request URL.
 /// </summary>
 [DebuggerDisplay("{DebuggerDisplay,nq}")]
 public class QueryParameter
@@ -17,7 +17,7 @@ public class QueryParameter
     private string _name = null!;
 
     /// <summary>
-    /// The name (left side) of the query parameter.
+    /// The name (left side) of the query parameter (?Name=1).
     /// </summary>
     public string Name
     {
@@ -34,7 +34,7 @@ public class QueryParameter
     }
 
     /// <summary>
-    /// The value (right side) of the query parameter.
+    /// The value (right side) of the query parameter (?Name=Value)
     /// </summary>
     public object? Value
     {
@@ -59,8 +59,8 @@ public class QueryParameter
     }
 
     /// <summary>
-    /// Creates a new instance of a query parameter. Allows specifying whether string value provided has
-    /// already been URL-encoded.
+    /// Creates a new instance of a query parameter.<br/>
+    /// Allows specifying whether string value provided has already been URL-encoded.
     /// </summary>
     /// <param name="name">The name of a parameter.</param>
     /// <param name="value">The value of parameter.</param>

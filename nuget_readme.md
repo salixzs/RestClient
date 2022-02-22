@@ -12,7 +12,7 @@ Example:
 ```
 can be executed as this GET extension method call, returning strongly typed `DomainObject`:
 ```c#
-var result = await _client.GetAsync<DomainObject>("/api/parents/{id}/children/{childId}", new { id = 12, childId = 15 }, new QueryParameterCollection {{ "skip", 0 },{ "take", 10 }})
+var result = await _client.GetAsync<DomainObject>("/api/parents/{id}/children/{childId}", new PathParameters("id", 12, "childId", 15), new QueryParameters(new { skip = 0, take = 10 })
 ```
 
 Package expects it to have concrete settings object, from witch it gathers `BaseAddress`, [optionally] factory name, authentication approach, any default headers ("text/json" is added by default, if not specified implicitly).\

@@ -37,11 +37,19 @@ Provides path and query parametrization for API URLs as well as default and on-f
     <PackageReadmeFile>nuget_readme.md</PackageReadmeFile>
 
     <PackageReleaseNotes>
+Heavy breaking changes! Considerable rewrite with plenty of improvements in code and documentation (see repository Wiki).
+Made sure Abstract class works in any of 3 scenarios - Factory, Named Factory and Typed client - with/without interface.
+Added oveeridable methods to read authentication token or apiKey from outside before each HttpClient request.
 Added Response.ReasonPhrase to RestClientException when there is server failure for request.
+Added PathParameters collection to replace dynamic and avoid collision with object data parameter.
+Exposed GetRequestMessage and SendMessageAsync methods to work with them on lower level.
+Added missing extension methods + and heavily documented all.
+Internally package code base covered with much more unit-tests.
+Package is now embracing NULLABLE reference types (C# v8+).
     </PackageReleaseNotes>
-    <Version>3.0.1</Version>
-    <AssemblyVersion>3.0.1.0</AssemblyVersion>
-    <FileVersion>3.0.1.0</FileVersion>
+    <Version>3.1.0</Version>
+    <AssemblyVersion>3.1.0.0</AssemblyVersion>
+    <FileVersion>3.1.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

@@ -191,18 +191,31 @@ public abstract partial class HttpClientExtender
             queryParameters: null,
             headers: null);
 
-    /// <inheritdoc cref="IRestClient.GetRequestMessage(HttpMethod,string,QueryParameters,PathParameters)"/>
+    /// <inheritdoc cref="IRestClient.GetRequestMessage(HttpMethod,string,PathParameters,QueryParameters)"/>
     public async Task<HttpRequestMessage> GetRequestMessage(
         HttpMethod method,
         string operation,
-        QueryParameters queryParameters,
-        PathParameters pathParameters) =>
+        PathParameters pathParameters,
+        QueryParameters queryParameters) =>
         await this.GetRequestMessage(
             method,
             operation: operation,
             data: null,
             pathParameters: pathParameters,
             queryParameters: queryParameters,
+            headers: null);
+
+    /// <inheritdoc cref="IRestClient.GetRequestMessage(HttpMethod,string,PathParameters)"/>
+    public async Task<HttpRequestMessage> GetRequestMessage(
+        HttpMethod method,
+        string operation,
+        PathParameters pathParameters) =>
+        await this.GetRequestMessage(
+            method,
+            operation: operation,
+            data: null,
+            pathParameters: pathParameters,
+            queryParameters: null,
             headers: null);
 
     /// <inheritdoc cref="IRestClient.GetRequestMessage(HttpMethod,string,QueryParameters)"/>
