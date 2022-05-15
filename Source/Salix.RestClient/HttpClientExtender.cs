@@ -42,6 +42,11 @@ public abstract partial class HttpClientExtender
     /// </summary>
     protected virtual (string Key, string Value) GetAuthenticationKeyValue() => new("", "");
 
+    /// <summary>
+    /// Method to be overriden in inheriting class to append additional header(s) to each request.
+    /// </summary>
+    protected virtual Dictionary<string, string> GetCommonHeaders() => new();
+
     private readonly IObjectSerializer _serializer;
     private readonly RestServiceSettings _settings;
     private readonly ILogger _logger;

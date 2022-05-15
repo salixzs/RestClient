@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -59,6 +60,25 @@ public abstract partial class HttpClientExtender
                 _logger.LogTrace(
                     $"Adding External authentication token \"{authKeyValue.Key} {authKeyValue.Value}\".");
                 request.Headers.Authorization = new AuthenticationHeaderValue(authKeyValue.Key, authKeyValue.Value);
+            }
+        }
+
+        var commonHeaders = this.GetCommonHeaders();
+        if (commonHeaders.Any())
+        {
+            foreach (var hdr in commonHeaders)
+            {
+                if (request.Headers.Contains(hdr.Key))
+                {
+                    _logger.LogTrace($"Changing value of request header {hdr.Key} in API RestClient request.");
+                    request.Headers.Remove(hdr.Key);
+                    request.Headers.Add(hdr.Key, hdr.Value);
+                }
+                else
+                {
+                    _logger.LogTrace($"Adding request header {hdr.Key} to API RestClient request.");
+                    request.Headers.Add(hdr.Key, hdr.Value);
+                }
             }
         }
 
