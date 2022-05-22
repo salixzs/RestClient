@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace Salix.RestClient;
@@ -99,5 +100,7 @@ public class QueryParameter
         return $"{this.Name}={encoded}";
     }
 
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    [ExcludeFromCodeCoverage]
     private string DebuggerDisplay => this.ToString();
 }

@@ -26,6 +26,7 @@ public class RestServiceAuthentication
     public string? Password { get; set; }
 
     [ExcludeFromCodeCoverage]
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private string DebuggerDisplay
     {
         get

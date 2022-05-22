@@ -52,6 +52,35 @@ public abstract partial class HttpClientExtender
     private readonly ILogger _logger;
 
     /// <summary>
+    /// Overridable method to tamper with request right before its getting called.<br/>
+    /// See also <see cref="GetAuthenticationKeyValue"/> / <see cref="GetAuthenticationKeyValueAsync"/><br/>and <see cref="GetCommonHeaders"/> for specific global header adding.
+    /// </summary>
+    /// <param name="request">Prepared request object</param>
+    protected virtual void InterceptRequestBeforeCall(HttpRequestMessage request) { return; }
+
+    /// <summary>
+    /// Overridable method to handle the response from API to a request after it was issued.<br/>
+    /// Use it to handle in some global exception handling or any other logic you want globally for your client to have.<br/>
+    /// Return FALSE to prevent client to throw exception (you did handle it yourself) or TRUE (default) for client to throw it.
+    /// </summary>
+    /// <param name="response">The response object. May be null in case fatal eception was thrown.</param>
+    /// <param name="exception">Exception about to be thrown if response returned not success code.<br/>WIll be null for successfull responses.<br/>
+    /// May be tailored <see cref="RestClientException"/> or some more general exception.
+    /// </param>
+    /// <returns>Should return TRUE (default) if client should throw exception or false if youhandled exception yourself and do not want client to retrhrow it again.</returns>
+    protected virtual bool InterceptResponseAfterCall(HttpResponseMessage? response, Exception? exception) => true;
+
+    /// <summary>
+    /// The value that indicates the last request's response was success.
+    /// </summary>
+    public bool? IsSuccessStatusCode { get; private set; }
+
+    /// <summary>
+    /// Status code of last request's response code.
+    /// </summary>
+    public HttpStatusCode? StatusCode { get; private set; }
+
+    /// <summary>
     /// Last operation timing.
     /// </summary>
     public TimeSpan CallTime { get; private set; }
@@ -97,25 +126,47 @@ public abstract partial class HttpClientExtender
 
             try
             {
+                this.InterceptRequestBeforeCall(request);
                 // ========== API Service CALLED HERE!!!! ========
                 result = await this.HttpClientInstance
                     .SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
                     .ConfigureAwait(false);
             }
-            catch (OperationCanceledException)
+            catch (OperationCanceledException cancelledException)
             {
                 this.StopTimer(timer, true);
-                if (this.ThrowOnCancellation)
+
+                if (result != null)
+                {
+                    this.IsSuccessStatusCode = result.IsSuccessStatusCode;
+                    this.StatusCode = result.StatusCode;
+                }
+
+                var doRethrow = this.InterceptResponseAfterCall(result, cancelledException);
+                if (this.ThrowOnCancellation && doRethrow)
                 {
                     throw;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 this.StopTimer(timer, true);
-                throw;
+                if (result != null)
+                {
+                    this.IsSuccessStatusCode = result.IsSuccessStatusCode;
+                    this.StatusCode = result.StatusCode;
+                }
+
+                var doRethrow = this.InterceptResponseAfterCall(result, ex);
+                if (this.ThrowOnCancellation && doRethrow)
+                {
+                    throw;
+                }
             }
         }
+
+        this.IsSuccessStatusCode = result.IsSuccessStatusCode;
+        this.StatusCode = result.StatusCode;
 
         if (!result.IsSuccessStatusCode)
         {
@@ -127,10 +178,16 @@ public abstract partial class HttpClientExtender
             _logger.LogTrace($"API call failed with status code {result.StatusCode}");
             var retException = await this.ComposeRestClientException(result);
             this.StopTimer(timer);
-            throw retException;
+
+            var doThrow = this.InterceptResponseAfterCall(result, retException);
+            if (this.ThrowOnCancellation && doThrow)
+            {
+                throw retException;
+            }
         }
 
         this.StopTimer(timer);
+        _ = this.InterceptResponseAfterCall(result, null);
         return result;
     }
 
@@ -314,6 +371,7 @@ public abstract partial class HttpClientExtender
     }
 
     [ExcludeFromCodeCoverage]
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private string DebuggerDisplay => $"HttClient to {_settings.BaseAddress}";
 }
 #pragma warning restore CA2254, CA1848 // Logger delegates and templates

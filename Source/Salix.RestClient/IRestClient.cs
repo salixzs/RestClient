@@ -26,6 +26,16 @@ public interface IRestClient
     HttpClient HttpClientInstance { get; }
 
     /// <summary>
+    /// The value that indicates whether the last request's response was a success.
+    /// </summary>
+    public bool IsSuccessStatusCode { get; }
+
+    /// <summary>
+    /// Status code of last request's response code.
+    /// </summary>
+    public HttpStatusCode? StatusCode { get; }
+
+    /// <summary>
     /// Sends the HTTP request to API service based with given Request message.
     /// </summary>
     /// <exception cref="RestClientException">Thrown if request or serialization failed. Custom exception properties and Exception.Data contains details on failure.</exception>

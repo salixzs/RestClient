@@ -28,6 +28,8 @@ namespace RestClient.Tests
             var result = await _api.GetAsync<Uuid>("uuid");
             result.Should().NotBeNull();
             result.uuid.Should().NotBeEmpty();
+            _api.IsSuccessStatusCode.Should().BeTrue();
+            _api.StatusCode.Should().Be(HttpStatusCode.OK);
         }
 
         [Fact]
@@ -117,6 +119,9 @@ namespace RestClient.Tests
                 ex.Data["Api.Method"].Should().Be("GET");
                 ex.StatusCode.Should().Be(HttpStatusCode.NotFound);
                 ex.Method.Should().Be(HttpMethod.Get);
+
+                _api.IsSuccessStatusCode.Should().BeFalse();
+                _api.StatusCode.Should().Be(HttpStatusCode.NotFound);
             }
         }
 

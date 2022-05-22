@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Salix.RestClient;
 
@@ -39,5 +40,7 @@ public class RestServiceSettings
     /// </summary>
     public Dictionary<string, string> RequestHeaders { get; set; } = new Dictionary<string, string>();
 
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    [ExcludeFromCodeCoverage]
     private string DebuggerDisplay => $"URL: {this.BaseAddress}, Auth: {this.Authentication.AuthenticationType}, Header count: {this.RequestHeaders.Count}";
 }
