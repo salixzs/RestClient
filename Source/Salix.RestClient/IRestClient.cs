@@ -28,7 +28,7 @@ public interface IRestClient
     /// <summary>
     /// The value that indicates whether the last request's response was a success.
     /// </summary>
-    public bool IsSuccessStatusCode { get; }
+    public bool? IsSuccessStatusCode { get; }
 
     /// <summary>
     /// Status code of last request's response code.
