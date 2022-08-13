@@ -38,13 +38,11 @@ Interception points give possibility to inject custom handlers before request an
     <PackageReadmeFile>nuget_readme.md</PackageReadmeFile>
 
     <PackageReleaseNotes>
-Added interceptor points "BeforeRequest" and "AfterResponse".
-Added properties to get "IsSuccessStatusCode" and StatusCode itself after call.
-3.3.1: Missed nullability of IsSuccessCode property.
+Bugfix - anonymous object for QueryParameters with null values throws exception.
     </PackageReleaseNotes>
-    <Version>3.3.1</Version>
-    <AssemblyVersion>3.3.1.0</AssemblyVersion>
-    <FileVersion>3.3.1.0</FileVersion>
+    <Version>3.3.2</Version>
+    <AssemblyVersion>3.3.2.0</AssemblyVersion>
+    <FileVersion>3.3.2.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

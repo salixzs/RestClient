@@ -285,5 +285,24 @@ namespace RestClient.Tests
             testable["Desc"] = null;
             _ = testable.ToString().Should().Be("Label=MUU&Misc=Yesss&ID=11");
         }
+
+        [Fact]
+        public void NullValues_InList_AreIgnored()
+        {
+            var testable = new QueryParameters
+            {
+                { "Label", "MUU" },
+                { "FirstId", null },
+                { "SecondId", null },
+            };
+            _ = testable.ToString().Should().Be("Label=MUU&FirstId=&SecondId=");
+        }
+
+        [Fact]
+        public void NullValues_Anonymous_AreIgnored()
+        {
+            var testable = new QueryParameters(new { label = "MUU", firstId = (int?)null, secondId = (int?)null, });
+            _ = testable.ToString().Should().Be("label=MUU&firstId=&secondId=");
+        }
     }
 }

@@ -108,7 +108,9 @@ public class QueryParameters : List<QueryParameter>
 
         foreach (PropertyInfo property in nameValues.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
         {
-            this.Add(new QueryParameter(property.Name, property.GetValue(nameValues, null).ToString()));
+            this.Add(property.GetValue(nameValues, null) == null
+                ? new QueryParameter(property.Name, string.Empty)
+                : new QueryParameter(property.Name, property.GetValue(nameValues, null).ToString()));
         }
     }
 
