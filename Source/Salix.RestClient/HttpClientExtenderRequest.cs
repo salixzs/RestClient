@@ -25,9 +25,17 @@ public abstract partial class HttpClientExtender
         var request = this.CreateRequest(method, operation, pathParameters, queryParameters);
         if (data != null)
         {
-            _logger.LogTrace("Adding payload data to API RestClient request.");
-            request.Content = new StringContent(await _serializer.SerializeAsync(data), Encoding.UTF8,
-                "application/json");
+            if (data.GetType().IsSubclassOf(typeof(HttpContent)))
+            {
+                _logger.LogTrace($"Adding payload data ({data.GetType().Name}) to API RestClient request.");
+                request.Content = data as HttpContent;
+            }
+            else
+            {
+                _logger.LogTrace("Adding object (as Json) payload data to API RestClient request.");
+                request.Content = new StringContent(await _serializer.SerializeAsync(data), Encoding.UTF8,
+                    "application/json");
+            }
         }
 
         // Handling BASIC authentication

@@ -1,6 +1,10 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Salix.RestClient;
@@ -43,6 +47,34 @@ namespace RestClient.Tests
             result.Should().NotBeNull();
             result.url.Should().Be($"{BaseAddress}/post");
             AssertData(result);
+        }
+
+        [Fact]
+        public async Task Post_MultipartForm()
+        {
+            MethodResponse result = null;
+            using (var content = new MultipartFormDataContent())
+            {
+                var byteArray = Encoding.UTF8.GetBytes("banzai");
+                StreamContent fileContent;
+                using (var stream = new MemoryStream(byteArray))
+                {
+                    fileContent = new StreamContent(stream);
+                    fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
+                    content.Add(
+                        content: fileContent,
+                        name: "\"files\"",
+                        fileName: "testing.txt");
+
+                    _api = new BinClientTyped(_httpClient, new RestServiceSettings { BaseAddress = BaseAddress }, _logger);
+                    result = await _api.PostAsync<MethodResponse>("post", content);
+                }
+            }
+
+            result.Should().NotBeNull();
+            result.files.Should().NotBeEmpty();
+            result.files.First().Key.Should().Be("files");
+            result.files.First().Value.Should().Be("banzai");
         }
 
         [Fact]

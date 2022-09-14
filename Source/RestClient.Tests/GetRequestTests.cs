@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -55,7 +57,7 @@ namespace RestClient.Tests
             sut.Method.Should().Be(HttpMethod.Put);
             sut.RequestUri.OriginalString.Should().Be("/api/car/12?filter=yes");
 
-            var serializedContent = sut.Content.ReadAsStringAsync(CancellationToken.None).Result;
+            var serializedContent = await sut.Content.ReadAsStringAsync(CancellationToken.None);
             serializedContent.Should().NotBeNullOrEmpty();
             serializedContent.Should().Be("{\"Id\":69,\"Name\":\"Aston Martin\"}");
 
@@ -77,5 +79,61 @@ namespace RestClient.Tests
             auth.Parameter.Should().Be(token);
         }
 
+        [Fact]
+        public async Task GetRequest_StringContent()
+        {
+            var sut = await _api.GetRequestMessage(
+                HttpMethod.Post,
+                "/api/car/{id}",
+                new StringContent("abracadabra"),
+                new PathParameters("id", 21));
+
+            sut.Should().NotBeNull();
+
+            sut.Content.Should().BeOfType(typeof(StringContent));
+            var serializedContent = await sut.Content.ReadAsStringAsync(CancellationToken.None);
+            serializedContent.Should().NotBeNullOrEmpty();
+            serializedContent.Should().Be("abracadabra");
+        }
+
+        [Fact]
+        public async Task GetRequest_FormMultipart()
+        {
+            HttpRequestMessage sut;
+            var filename = string.Empty;
+            var testContent = string.Empty;
+            using (var content = new MultipartFormDataContent())
+            {
+                var byteArray = Encoding.UTF8.GetBytes("banzai");
+                StreamContent fileContent;
+                using (var stream = new MemoryStream(byteArray))
+                {
+                    fileContent = new StreamContent(stream);
+                    fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
+                    content.Add(
+                        content: fileContent,
+                        name: "\"files\"",
+                        fileName: "testing.txt");
+
+                    sut = await _api.GetRequestMessage(
+                        HttpMethod.Post,
+                        "/api/car/{id}",
+                        content,
+                        new PathParameters("id", 10033));
+
+                    sut.Should().NotBeNull();
+                    sut.Content.Should().BeOfType(typeof(MultipartFormDataContent));
+                    var dataContents = sut.Content as MultipartFormDataContent;
+                    foreach (var dataContent in dataContents)
+                    {
+                        filename = dataContent.Headers.ContentDisposition.FileName;
+                        testContent = await dataContent.ReadAsStringAsync();
+                    }
+                }
+            }
+
+            filename.Should().Be("testing.txt");
+            testContent.Should().Be("banzai");
+        }
     }
 }
