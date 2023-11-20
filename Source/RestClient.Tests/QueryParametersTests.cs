@@ -27,6 +27,13 @@ namespace RestClient.Tests
         }
 
         [Fact]
+        public void TwoValues_Constructor_IsAdded()
+        {
+            var testable = new QueryParameters("Identifier", 1001, "Other", 2001);
+            _ = testable.ToString().Should().Be("Identifier=1001&Other=2001");
+        }
+
+        [Fact]
         public void Add_IntegerParameter_IsCorrect()
         {
             var testable = new QueryParameters

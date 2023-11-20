@@ -106,8 +106,10 @@ namespace RestClient.Tests
         [Fact]
         public async Task ResponseInterceptor_ReThrowFailure_Rethrows()
         {
-            _api = new BinClientTypedWithInterceptors(_httpClient, new RestServiceSettings { BaseAddress = "https://httpbin.org" }, _logger);
-            _api.ReThrow = true;
+            _api = new BinClientTypedWithInterceptors(_httpClient, new RestServiceSettings { BaseAddress = "https://httpbin.org" }, _logger)
+            {
+                ReThrow = true
+            };
             try
             {
                 var result = await _api.GetAsync<MethodResponse>("kjdfhg");

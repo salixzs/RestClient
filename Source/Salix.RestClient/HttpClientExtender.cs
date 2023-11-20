@@ -23,9 +23,9 @@ public abstract partial class HttpClientExtender
     public HttpClient HttpClientInstance { get; protected set; } = null!;
 
     /// <summary>
-    /// Set Operation Cancellation behavior when <see cref="CancellationToken"/> is explicitly supplied.<br/>
+    /// Set Operation Cancellation behaviour when <see cref="CancellationToken"/> is explicitly supplied.<br/>
     /// Default setting: True (will throw <see cref="OperationCanceledException"/>.<br/>
-    /// Normally you should allow to throw exception and handle it in your code to avoid weird behaviors.<br/>
+    /// Normally you should allow to throw exception and handle it in your code to avoid weird behaviours.<br/>
     /// On False:<br/>
     /// - Typed operation calls will return default values.<br/>
     /// - HttpResponseMessage operations will return empty object with Status <see cref="HttpStatusCode.ResetContent"/>.
@@ -33,17 +33,17 @@ public abstract partial class HttpClientExtender
     public bool ThrowOnCancellation { get; set; } = true;
 
     /// <summary>
-    /// Method to be overriden in inheriting class to retrieve authentication key-value pair (eg. Bearer Token)
+    /// Method to be overridden in inheriting class to retrieve authentication key-value pair (eg. Bearer Token)
     /// </summary>
     protected virtual async Task<(string Key, string Value)> GetAuthenticationKeyValueAsync() => new("", "");
 
     /// <summary>
-    /// Method to be overriden in inheriting class to retrieve authentication key-value pair (eg. Bearer Token)
+    /// Method to be overridden in inheriting class to retrieve authentication key-value pair (eg. Bearer Token)
     /// </summary>
     protected virtual (string Key, string Value) GetAuthenticationKeyValue() => new("", "");
 
     /// <summary>
-    /// Method to be overriden in inheriting class to append additional header(s) to each request.
+    /// Method to be overridden in inheriting class to append additional header(s) to each request.
     /// </summary>
     protected virtual Dictionary<string, string> GetCommonHeaders() => new();
 
@@ -63,11 +63,11 @@ public abstract partial class HttpClientExtender
     /// Use it to handle in some global exception handling or any other logic you want globally for your client to have.<br/>
     /// Return FALSE to prevent client to throw exception (you did handle it yourself) or TRUE (default) for client to throw it.
     /// </summary>
-    /// <param name="response">The response object. May be null in case fatal eception was thrown.</param>
-    /// <param name="exception">Exception about to be thrown if response returned not success code.<br/>WIll be null for successfull responses.<br/>
+    /// <param name="response">The response object. May be null in case fatal exception was thrown.</param>
+    /// <param name="exception">Exception about to be thrown if response returned not success code.<br/>WIll be null for successful responses.<br/>
     /// May be tailored <see cref="RestClientException"/> or some more general exception.
     /// </param>
-    /// <returns>Should return TRUE (default) if client should throw exception or false if youhandled exception yourself and do not want client to retrhrow it again.</returns>
+    /// <returns>Should return TRUE (default) if client should throw exception or false if youhandled exception yourself and do not want client to rethrow it again.</returns>
     protected virtual bool InterceptResponseAfterCall(HttpResponseMessage? response, Exception? exception) => true;
 
     /// <summary>

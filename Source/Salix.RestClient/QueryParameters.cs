@@ -64,6 +64,8 @@ public class QueryParameters : List<QueryParameter>
     /// </summary>
     /// <param name="key1">The key/name of the first parameter.</param>
     /// <param name="value1">The value for the first parameter. Can be array of values.</param>
+    /// <param name="key2">The key/name of the second parameter.</param>
+    /// <param name="value2">The value for the second parameter. Can be array of values.</param>
     public QueryParameters(string key1, object? value1, string key2, object? value2)
     {
         if (value1 == null)
