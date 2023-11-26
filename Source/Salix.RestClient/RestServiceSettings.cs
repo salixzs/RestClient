@@ -38,7 +38,7 @@ public class RestServiceSettings
     /// { "Accept", "application/json" }, { "User-Agent", "MyFrontend" }
     /// </code>
     /// </summary>
-    public Dictionary<string, string> RequestHeaders { get; set; } = new Dictionary<string, string>();
+    public Dictionary<string, string> RequestHeaders { get; set; } = [];
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     [ExcludeFromCodeCoverage]

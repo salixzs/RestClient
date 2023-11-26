@@ -45,7 +45,7 @@ public abstract partial class HttpClientExtender
     /// <summary>
     /// Method to be overridden in inheriting class to append additional header(s) to each request.
     /// </summary>
-    protected virtual Dictionary<string, string> GetCommonHeaders() => new();
+    protected virtual Dictionary<string, string> GetCommonHeaders() => [];
 
     private readonly IObjectSerializer _serializer;
     private readonly RestServiceSettings _settings;

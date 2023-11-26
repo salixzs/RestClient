@@ -1,11 +1,21 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31320.298
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34310.174
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Salix.RestClient", "Source\Salix.RestClient\Salix.RestClient.csproj", "{5ABD0A6E-A52A-46DF-A1C6-6EB7A4DAAC24}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestClient.Tests", "Source\RestClient.Tests\RestClient.Tests.csproj", "{9D106FC9-017B-4141-A120-F8743FDC6000}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RestClient.Tests", "Source\RestClient.Tests\RestClient.Tests.csproj", "{9D106FC9-017B-4141-A120-F8743FDC6000}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SolutionItems", "SolutionItems", "{0D803562-252C-40D9-A2AA-50EB30F807E8}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		.github\workflows\build_test.yml = .github\workflows\build_test.yml
+		nuget_readme.md = nuget_readme.md
+		.github\workflows\publish_nuget.yml = .github\workflows\publish_nuget.yml
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
