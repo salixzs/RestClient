@@ -2,7 +2,7 @@
 
   <!-- === General properties ===-->
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <RootNamespace>Salix.RestClient</RootNamespace>
     <LangVersion>latest</LangVersion>
@@ -38,11 +38,11 @@ Interception points give possibility to inject custom handlers before request an
     <PackageReadmeFile>nuget_readme.md</PackageReadmeFile>
 
     <PackageReleaseNotes>
-Added check for "data" being a subclass of HttpContent and then passing it to request as-is. This allows (as one exmaple) to submit files as MultipartFormDataContent.
+Removed support for .Net Standard 2.0. Since v4.0 package targets .Net 8.0 (minimum) and .Net 9.0.
     </PackageReleaseNotes>
-    <Version>3.3.3</Version>
-    <AssemblyVersion>3.3.3.0</AssemblyVersion>
-    <FileVersion>3.3.3.0</FileVersion>
+    <Version>4.0.0</Version>
+    <AssemblyVersion>4.0.0.0</AssemblyVersion>
+    <FileVersion>4.0.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -53,10 +53,10 @@ Added check for "data" being a subclass of HttpContent and then passing it to re
   <!-- === NuGet dependencies ===-->
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="System.Text.Json" Version="8.0.0" />
+    <PackageReference Include="System.Text.Json" Version="9.0.1" />
   </ItemGroup>
 
 </Project>
